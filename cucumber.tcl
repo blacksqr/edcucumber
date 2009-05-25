@@ -193,6 +193,72 @@ proc linum {id} {
     return [expr int([.f.content index $id])]
 }
 
+proc ifInWord {id} {
+    # -1 = word head
+    #  1 = word end
+    #  2 = in word
+    #  0 = not in word
+
+    if [.f.content compare $id == "$id linestart"] {
+	if [regexp {\W} [.f.content get $id]] {
+	    return 0
+	}
+	return -1
+    }
+
+    if [.f.content compare $id == "$id lineend"] {
+	if [regexp {\W} [.f.content get "$id - 1c"]] {
+	    return 0
+	}
+	return 1
+    }
+    
+    set p [.f.content get "$id -1c"]
+    set i [.f.content get $id]
+    set s "$p$i"
+
+    if [regexp {\W{2}} $s] {
+	return 0
+    } elseif [regexp {\w\W} $s] {
+	return 1
+    } elseif [regexp {\W\w} $s] {
+	return -1
+    } else {
+	return 2
+    }
+}
+
+proc indexWordHead {id} {
+    if [.f.content compare $id == "$id linestart"] {
+	return [.f.content index $id]
+    } else {
+	set i 1
+	while {![regexp {\W} [.f.content get "$id - $i c"]]} {
+	    if [.f.content compare "$id - $i c" == "$id linestart"] {
+		return [.f.content index {insert linestart}]
+	    }
+	    incr i
+	}
+	return [.f.content index "$id - $i c + 1c"]
+    }
+}
+
+proc indexWordEnd {id} {
+    if [.f.content compare $id == "$id lineend"] {
+	return [.f.content index $id]
+    } else {
+	set i 0
+	while {![regexp {\W} [.f.content get "$id + $i c"]]} {
+	    incr i
+	    if [.f.content compare "$id + $i c" == "$id lineend"] {
+		break
+	    }
+	}
+	return [.f.content index "$id + $i c"]
+    }
+}
+
+
 #-------------------------------------------------------#
 # TEST
 
