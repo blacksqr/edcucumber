@@ -1,0 +1,17 @@
+lappend auto_path ./lib
+package require hot
+package require pngObj
+
+# ?hot::init? : if hot::init from directory verbos
+
+gui
+
+# from directory tcl
+source tcl/fast_move.tcl
+source tcl/indent_by_reg.tcl
+
+bindDefaultEvents
+
+# from directory plus
+source plus/hi_line.tcl
+source plus/hi_syntax.tcl
