@@ -66,6 +66,7 @@ proc bindDefaultEvents {} {
 	<Control-w>
 	<Control-x>
 	<Control-z>
+	<Control-k>
     } {
 	bind .f.content $e {+ after idle decrLinum}
     }
