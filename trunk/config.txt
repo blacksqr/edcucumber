@@ -15,3 +15,4 @@ bindDefaultEvents
 # from directory plus
 source plus/hi_line.tcl
 source plus/hi_syntax.tcl
+source plus/auto_complete.tcl
