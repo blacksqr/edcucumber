@@ -15,7 +15,7 @@ proc fastMoveEvents {} {
         {<Alt-f>       hdlMoveToNextWord}
         {<Alt-<>       hdlMoveToDocHead}
         {<Alt-greater> hdlMoveToDocEnd}
-	{<Alt-/>       hdlMoveToContentHead}
+	{<Alt-m>       hdlMoveToContentHead}
     }
 }
 
