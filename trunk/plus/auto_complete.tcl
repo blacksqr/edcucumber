@@ -11,6 +11,7 @@ if 0 {
 }
 
 toplevel .a -height 40
+# wm deiconify .a
 widget::scrolledwindow .a.sw 
 
 treectrl .a.sw.l \
@@ -118,10 +119,13 @@ proc popupAutoList {} {
     focus .a.sw.l
     wm geometry .a +$x+$y
     wm deiconify .a
+    tkwait visibility .a
+    grab .a
 }
 
 proc releaseGrab {} {
     wm withdraw .a
+    grab release .a
     .a.sw.l item delete first last
 }
 
