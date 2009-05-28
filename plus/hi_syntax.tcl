@@ -50,8 +50,14 @@ set quotes [list]
 rename .f.content fake
 proc .f.content {args} { 
     set cmd [translateIndex $args]
-    after idle "$cmd"
+    if {$cmd ne {}} {
+	after idle [list timeproc $cmd]
+    }
     uplevel 1 fake $args
+}
+
+proc timeproc {cmd} {
+    puts [time $cmd]
 }
 
 proc translateIndex {args} { 
@@ -62,9 +68,9 @@ proc translateIndex {args} {
 	return "hiContent $id {$id + $lco c}"
     } elseif {[string first delete $args] == 0} {
 	set id [fake index [lindex $args 1]]
-	return "hiWord $id"
+	return "hiContent $id $id"
     }
-    return none
+    return {}
 }
 
 proc none {} {}
@@ -74,9 +80,14 @@ proc none {} {}
 proc hiContent {first last} {
     # puts "{[fake get 1.0 end]}"
     set first [hiWord $first]
+    # puts [time {
     while {[fake compare $first <= $last]} {
 	set first [hiWord $first]
-    }
+    } ;#}]
+
+    # puts [time updateQuoteContext]
+    updateQuoteContext
+    #quoteContext $id
 }
 
 proc hiWord {id} {
@@ -88,6 +99,7 @@ proc hiWord {id} {
 	set h [indexWordHead $id]
 	set t [indexWordEnd  $id]
 	# puts "$id : $h $t"
+	#puts [time [list hiSyntax $h $t]]
 	hiSyntax $h $t
 
 	set ret "$t +1c"
@@ -95,8 +107,6 @@ proc hiWord {id} {
 	set ret "$id +1c"
     }
 
-    updateQuoteContext $id
-    # quoteContext $id
     varContext $id
     commentContext $id
 
@@ -170,7 +180,7 @@ proc commentContext {id} {
     return 0
 }
 
-proc quoteContext {id} {
+proc quoteContext {} {
     if {[fake get 1.0] eq "\""} {
 	set rid [list 1.0]
     } else {
@@ -219,11 +229,7 @@ proc quoteContext {id} {
     }
 }
 
-proc updateQuoteContext {id} {
-    foreach id $::quotes {
-	catch {after cancel [list quoteContext $id]}
-    }
-    set ::quotes {}
-    lappend ::quotes $id
-    after 1000 [list quoteContext $id]
+proc updateQuoteContext {} {
+    catch {after cancel quoteContext}
+    after 1000 quoteContext
 }
