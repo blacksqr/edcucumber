@@ -23,14 +23,17 @@ proc fastMoveEvents {} {
 
 proc hdlMoveToContentHead {} {
     .f.content mark set insert [.f.content search -regexp {\w} {insert linestart} {insert lineend}]
+    .f.content see insert
 }
 
 proc hdlMoveToLineEnd {} {
     .f.content mark set insert {insert lineend}
+    .f.content see insert
 }
 
 proc hdlMoveToLineStart {} {
     .f.content mark set insert {insert linestart}
+    .f.content see insert
 }
 
 proc hdlMoveToPreviousWord {} {
@@ -41,21 +44,27 @@ proc hdlMoveToPreviousWord {} {
         }
         incr bw
     }
-    after idle [list .f.content mark set insert "insert - $bw c wordstart"]
+    after idle ".f.content mark set insert \"insert - $bw c wordstart\"; .f.content see insert"
 }
 
 proc hdlMoveToNextWord {} {
     if [.f.content compare insert == {end - 1c}] {return}
     set start [.f.content search -forwards -regexp -nolinestop -count span {\w+\W} insert {end - 1c}]
-    after idle [list .f.content mark set insert "$start + $span c - 1 c"]
+    after idle ".f.content mark set insert \"$start + $span c - 1 c\"; .f.content see insert"
 }
 
 proc hdlMoveToDocHead {} {
-    after idle {.f.content mark set insert 1.0}
+    after idle {
+	.f.content mark set insert 1.0
+	.f.content see insert
+    }
 }
 
 proc hdlMoveToDocEnd {} {
-    after idle {.f.content mark set insert {end - 1c}}
+    after idle {
+	.f.content mark set insert {end - 1c}
+	.f.content see insert
+    }
 }
 
 
