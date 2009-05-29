@@ -9,5 +9,5 @@
 # full path name of this file's directory.
 
 package ifneeded hot 0.1 [list source [file join $dir hot.tm]]
-package ifneeded menuTool 0.1 [list source [file join $dir menu_tool.tm]]
+package ifneeded menuTool 0.1 [list source [file join $dir menuTool.tm]]
 package ifneeded pngObj 0.1 [list source [file join $dir pngObj.tm]]
