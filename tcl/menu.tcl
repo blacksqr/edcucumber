@@ -18,8 +18,8 @@ menuTool::init [menuData]
 
 set current_file {}
 set types {
-    {{Text Files}       {.txt}        }
     {{TCL Scripts}      {.tcl}        }
+    {{Text Files}       {.txt}        }
     {{All Files}        *             }
 }
 
