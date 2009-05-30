@@ -82,7 +82,7 @@ proc hiContent {first last} {
     # puts "{[fake get 1.0 end]}"
     set first [hiWord $first]
     # puts [time {
-    while {[fake compare $first <= $last]} {
+    while {[fake compare $first < $last]} {
 	set first [hiWord $first]
     } ;#}]
 

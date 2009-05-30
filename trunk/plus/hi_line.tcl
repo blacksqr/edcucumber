@@ -61,6 +61,7 @@ proc addHi {} {
 	<Control-h>
 	<Control-d>
 	<Control-x>
+	<Control-k>
 
 	<braceleft>
 	<braceright>
