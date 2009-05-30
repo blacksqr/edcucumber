@@ -49,7 +49,7 @@ proc addHi {} {
 	<Control-w>
 	<Control-z>
 	
-	<ButtonPress-1>
+	<1>
 	<Up>
 	<Down>
 	<Prior>
@@ -72,18 +72,18 @@ proc addHi {} {
 
 proc switchHighLightLine {} {
     # puts {run to here}
-    after idle [list mwHline [linum [.f.content index insert]]]
+    after idle mwHline
 }
 
-proc mwHline {ol} {
+proc mwHline {} {
     set l [linum insert]
 
     .f.content tag remove hline 1.0 end
     
     #---#
-    # puts "$ol $l"
+    # puts "$::old_anchor $l"
     if {$::old_anchor != $l} {
-	pngToLinum $ol; linumToPng $l
+	pngToLinum $::old_anchor; linumToPng $l
 	set ::old_anchor $l
     }
 
