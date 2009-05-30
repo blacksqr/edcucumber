@@ -14,7 +14,7 @@ proc ::pngObj::produce {namelist} {
     } elseif [file isdirectory ../pic] {
 	set pic_dir ../pic
     } else {
-	puts "No images directory found!"
+	# puts "No images directory found!"
 	exit
     }
 
@@ -23,20 +23,20 @@ proc ::pngObj::produce {namelist} {
     set nms [lreplace $nms 0 0]
     if [file isfile $name] {
 	if [catch {set obj [image create photo -file $name -format png]} err] {
-	    puts $err
+	    # puts $err
 	    return
 	}
 	foreach pad $nms {
 	    set nm [file join $pic_dir $pad]
 	    if [catch {set p [image create photo -file $nm -format png]} err] {
-		puts $err
+		# puts $err
 		return
 	    }
 	    $obj copy $p
 	}
 	return  $obj
     } else { 
-	puts "No png file named $name"
+	# puts "No png file named $name"
 	return
     }
 }

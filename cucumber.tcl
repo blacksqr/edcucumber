@@ -11,7 +11,7 @@ set fg_linum   #656565
 # GUI
 
 proc gui {} {
-    ttk::labelframe .f
+    ttk::labelframe .f -text {new file}
     text .f.linum -width $::linum_png_width -bg gray -bd 0 -fg $::fg_linum
     .f.linum tag configure justright -justify right
     .f.linum insert end 1 justright
@@ -22,7 +22,7 @@ proc gui {} {
     pack .f.linum -side left -fill y -pady {0 6}
     pack .f.content -side left -fill both -expand 1 -pady {0 6}
     pack .f.sb -side right -fill y -pady {0 6}
-    pack .f -fill both -expand 1
+    pack .f -fill both -expand 1 -pady {2 0}
 
     frame .sf
     ttk::label .sf.lb

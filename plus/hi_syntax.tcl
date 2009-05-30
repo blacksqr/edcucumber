@@ -51,7 +51,8 @@ rename .f.content fake
 proc .f.content {args} { 
     set cmd [translateIndex $args]
     if {$cmd ne {}} {
-	after idle [list timeproc $cmd]
+	# after idle [list timeproc $cmd]
+	after idle $cmd
     }
     uplevel 1 fake $args
 }
