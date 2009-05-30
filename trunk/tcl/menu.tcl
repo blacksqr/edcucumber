@@ -35,6 +35,8 @@ proc createNewDoc {} {
 proc openDoc {} {
     if [.f.content edit modified] {
 	confirm	{Save current documnet?} [list if "\[saveDoc\]" "{_openDoc; destroy .cf}"] {destroy .cf; _openDoc}
+    } else {
+	_openDoc
     }
 }
 
@@ -50,6 +52,8 @@ proc _openDoc {} {
     .f.content delete 1.0 end    
     .f.content insert 1.0 [read $fid]
     close $fid
+    switchHighLightLine
+    incrLinum
 }
 
 proc saveDoc {} {
