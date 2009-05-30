@@ -25,8 +25,18 @@ set types {
 
 proc createNewDoc {} {
     if [.f.content edit modified] {
-	confirm	{Save current documnet?} [list if "\[saveDoc\]" "{destroy .cf}"] {destroy .cf}
+	confirm	{Save current documnet?} [list if "\[saveDoc\]" "{_newDoc; destroy .cf}"] {_newDoc; destroy .cf}
+    } else {
+	_newDoc
     }
+    switchHighLightLine
+    decrLinum
+    incrLinum
+    .f.content edit modified 0
+    set ::old_anchor 1
+}
+
+proc _newDoc {} {
     .f configure -text {new file}
     .f.content delete 1.0 end
     set ::current_file {}
@@ -54,6 +64,9 @@ proc _openDoc {} {
     close $fid
     switchHighLightLine
     incrLinum
+
+    .f.content edit modified 0
+    set ::old_anchor 1
 }
 
 proc saveDoc {} {
