@@ -25,7 +25,7 @@ set types {
 
 proc createNewDoc {} {
     if [.f.content edit modified] {
-	confirm	{Save current documnet?} saveDoc {destroy .cf}
+	confirm	{Save current documnet?} [list if "\[saveDoc\]" "{destroy .cf}"] {destroy .cf}
     }
     .f configure -text {new file}
     .f.content delete 1.0 end
@@ -33,8 +33,12 @@ proc createNewDoc {} {
 }
 
 proc openDoc {} {
-    createNewDoc
+    if [.f.content edit modified] {
+	confirm	{Save current documnet?} [list if "\[saveDoc\]" "{_openDoc; destroy .cf}"] {destroy .cf; _openDoc}
+    }
+}
 
+proc _openDoc {} {
     set filename [tk_getOpenFile -filetypes $::types]
     if {$filename eq {}} {
 	return
@@ -43,6 +47,7 @@ proc openDoc {} {
     set ::current_file $filename
 
     set fid [open $filename r]
+    .f.content delete 1.0 end    
     .f.content insert 1.0 [read $fid]
     close $fid
 }
@@ -53,7 +58,7 @@ proc saveDoc {} {
     }
     
     if {$::current_file eq {}} {
-	set filename [tk_getOpenFile -filetypes $::types]
+	set filename [tk_getSaveFile -filetypes $::types]
 	if {$filename eq {}} {
 	    return 0
 	}
@@ -69,7 +74,7 @@ proc saveDoc {} {
     return 1
 }
 proc saveAsDoc {} {
-    set filename [tk_getOpenFile -filetypes $::types]
+    set filename [tk_getSaveFile -filetypes $::types]
     if {$filename eq {}} {
 	return
     }
@@ -77,9 +82,10 @@ proc saveAsDoc {} {
     puts $fid [.f.content get 1.0 end]
     close $fid
 }
+
 proc quitApp {} {
     if [.f.content edit modified] {
-	confirm {Save current documnet?} {saveDoc} exit
+	confirm {Save current documnet?} [list if "\[saveDoc\]" "{exit}"] {exit}
     } else {
 	exit
     }
@@ -87,14 +93,14 @@ proc quitApp {} {
 
 #------------------------------------------------#
 
-proc confirm {text yes_command tail} {
+proc confirm {text yes_command no_command} {
     toplevel .cf
     ttk::label .cf.lb -text $text -image [pngObj::produce emblem-important.png] \
 	-compound left -justify center
-    ttk::button .cf.yes -text Yes -command [list if "\[$yes_command\]" "eval $tail"]
-    ttk::button .cf.no  -text No  -command [list eval $tail]
-    bind .cf.yes <Return> [list if "\[$yes_command\]" "eval $tail"]
-    bind .cf.no  <Return> [list eval $tail]
+    ttk::button .cf.yes -text Yes -command $yes_command
+    ttk::button .cf.no  -text No  -command $no_command
+    bind .cf.yes <Return> $yes_command
+    bind .cf.no  <Return> $no_command
     pack .cf.lb
     pack .cf.yes .cf.no -side left
 
