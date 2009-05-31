@@ -75,14 +75,15 @@ proc saveDoc {} {
     }
     
     if {$::current_file eq {}} {
+        set filename {}
 	set filename [tk_getSaveFile -filetypes $::types]
 	if {$filename eq {}} {
 	    return 0
 	}
     } else {
-	set ::current_file $filename
-	.f configure -text $filename
+	set filename $::current_file
     }
+    
     set fid [open $filename w]
     puts $fid [.f.content get 1.0 end]
     close $fid
@@ -90,6 +91,7 @@ proc saveDoc {} {
     .f.content edit modified 0
     return 1
 }
+
 proc saveAsDoc {} {
     set filename [tk_getSaveFile -filetypes $::types]
     if {$filename eq {}} {
@@ -131,3 +133,4 @@ proc confirm {text yes_command no_command} {
     tkwait visibility .cf
     grab .cf
 }
+
