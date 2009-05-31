@@ -10,6 +10,7 @@ gui
 source tcl/menu.tcl
 source tcl/fast_move.tcl
 source tcl/indent_by_reg.tcl
+source tcl/run.tcl
 
 bindDefaultEvents
 
@@ -17,3 +18,5 @@ bindDefaultEvents
 source plus/hi_line.tcl
 source plus/hi_syntax.tcl
 source plus/auto_complete.tcl
+
+.f.content edit modified 0
