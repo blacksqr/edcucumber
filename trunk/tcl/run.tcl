@@ -7,5 +7,5 @@ proc runScript {} {
     if {$err ne {}} {
 	.sf.lb configure -text $err
     }
-    interp delete foo
 }
+
