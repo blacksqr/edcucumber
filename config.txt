@@ -17,6 +17,6 @@ bindDefaultEvents
 # from directory plus
 source plus/hi_line.tcl
 source plus/hi_syntax.tcl
-source plus/auto_complete.tcl
+#source plus/auto_complete.tcl
 
 .f.content edit modified 0

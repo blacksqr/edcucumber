@@ -70,7 +70,10 @@ proc translateIndex {args} {
     } elseif {[string first delete $args] == 0} {
 	set id [fake index [lindex $args 1]]
 	return "hiContent $id $id"
-    }
+    } 
+    #--------Added for AutoComplete-------#
+    set ::action 1
+    #-------------------------------------#
     return {}
 }
 
