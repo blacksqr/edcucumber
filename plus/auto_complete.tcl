@@ -8,20 +8,29 @@ set auto_list [list ]
 bind .f.content <Alt-/> {+ hdlAutoComplete}
 
 proc hdlAutoComplete {} {
-    if $action {
-	set ::auto_base [getBase]
-	set ::auto_insert_pos $::wf
+    if $::action {
+	# puts {run to here 1}
+	getBase
     }
     
     if {$::auto_base != {}} {
+	# puts {run to here 2}
+	# puts $::auto_list
 	if ![ifFinishSearch] {
+	    # puts {run to here 3}
 	    getNextAutoWord
 	}
+
+	if ![llength $::auto_list] {
+	    return 
+	}
+
 	incr ::auto_loop
 	if {$::auto_loop >= [llength $::auto_list]} {
 	    set ::auto_loop 0
 	}
-	.f.content replace $::wf $::we [lindex $::auto_list $::auto_loop]
+	# puts "$::wf => $::we"
+	.f.content replace $::wf [indexWordEnd $::wf] [lindex $::auto_list $::auto_loop]
 	if ![catch {info args switchHighLightLine}] {
 	    switchHighLightLine
 	}
@@ -36,23 +45,28 @@ proc getBase {} {
     set pos [ifInWord insert]
     if {$pos > 0} {
 	set ::wf [indexWordHead insert]
-	set ::auto_insert_pos "insert -1c"
+	set ::we [.f.content index insert]
+	set ::auto_search_pos [.f.content index "$::wf -1c"]
 	set ::auto_base [.f.content get $::wf insert]
+	set ::auto_list [list ]
 	lappend ::auto_list $::auto_base
     }
-    return {}
 }
 
 proc ifFinishSearch {} {
     if {$::auto_search_pos == {}} { return 1 }
-    return [.f.content compare $::auto_search_pos == $wf]
+    set ret [.f.content compare $::auto_search_pos == $::wf]
+    # puts $ret
+    return $ret
 }
 
 proc getNextAutoWord {} {
-    set ::auto_search_pos [.f.content search -nolinestop -backword \
+    set old $::auto_search_pos
+    set ::auto_search_pos [.f.content search -nolinestop -backward \
 			       -regexp $::auto_base $::auto_search_pos]
-    if [$::auto_search_pos != {}] {
+    if {$::auto_search_pos != {}} {
 	set word [.f.content get $::auto_search_pos "$::auto_search_pos wordend"]
+	# puts $word
 	foreach w $::auto_list {
 	    if {$w == $word} {
 		return
