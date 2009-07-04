@@ -80,6 +80,7 @@ proc saveDoc {} {
 	if {$filename eq {}} {
 	    return 0
 	}
+	set ::current_file $filename
     } else {
 	set filename $::current_file
     }
