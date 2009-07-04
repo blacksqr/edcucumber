@@ -11,3 +11,5 @@
 package ifneeded hot 0.1 [list source [file join $dir hot.tm]]
 package ifneeded menuTool 0.1 [list source [file join $dir menuTool.tm]]
 package ifneeded pngObj 0.1 [list source [file join $dir pngObj.tm]]
+package ifneeded LabelEntry 0.1 [list source [file join $dir labelentry.tm]]
+

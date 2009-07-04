@@ -90,6 +90,9 @@ proc saveDoc {} {
     close $fid
 
     .f.content edit modified 0
+    
+    .sf.lb configure -text "Saved Done at : [clock format [clock seconds] -format {%H:%M:%S}]"
+    
     return 1
 }
 
@@ -134,4 +137,6 @@ proc confirm {text yes_command no_command} {
     tkwait visibility .cf
     grab .cf
 }
+
+
 
