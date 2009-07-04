@@ -11,9 +11,11 @@ set fg_linum   #656565
 # GUI
 
 proc gui {} {
+    ttk::frame .toolframe
     set ::searchWord {}
-    LabelEntry .srh -textvariable ::searchWord
-    pack .srh -padx 5 -pady {5 0} -anchor w
+    LabelEntry .toolframe.srh -textvariable ::searchWord -justify center
+    pack .toolframe.srh -padx {5 0} -anchor w -side left
+    pack .toolframe -fill x -pady {5 0}
 
     ttk::labelframe .f -text {new file}
     text .f.linum -width $::linum_png_width -bg gray -bd 0 -fg $::fg_linum
@@ -287,3 +289,4 @@ if 1 {
 	.f configure -text {new file}
     }
 }
+
