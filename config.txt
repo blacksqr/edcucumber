@@ -1,4 +1,5 @@
 lappend auto_path ./lib
+package require LabelEntry
 package require hot
 package require pngObj
 
@@ -18,5 +19,9 @@ bindDefaultEvents
 source plus/hi_line.tcl
 source plus/hi_syntax.tcl
 source plus/auto_complete.tcl
+source plus/search.tcl
 
 .f.content edit modified 0
+
+
+

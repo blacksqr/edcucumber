@@ -2,7 +2,7 @@ set wf {}
 set we {}
 set action 0
 set auto_base {}
-set auto_loop 0
+set auto_loop 1
 set auto_search_pos {}
 set auto_list [list ]
 bind .f.content <Alt-/> {+ hdlAutoComplete}
@@ -48,8 +48,7 @@ proc getBase {} {
 	set ::we [.f.content index insert]
 	set ::auto_search_pos [.f.content index "$::wf -1c"]
 	set ::auto_base [.f.content get $::wf insert]
-	set ::auto_list [list ]
-	lappend ::auto_list $::auto_base
+	set ::auto_list [list $::auto_base]
     }
 }
 
@@ -67,6 +66,7 @@ proc getNextAutoWord {} {
     if {$::auto_search_pos != {}} {
 	set word [.f.content get $::auto_search_pos "$::auto_search_pos wordend"]
 	# puts $word
+        # puts "$word => $::auto_list"
 	foreach w $::auto_list {
 	    if {$w == $word} {
 		return
@@ -75,3 +75,10 @@ proc getNextAutoWord {} {
 	lappend ::auto_list $word
     }
 }
+
+
+
+
+
+
+

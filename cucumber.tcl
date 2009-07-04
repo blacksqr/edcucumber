@@ -11,18 +11,21 @@ set fg_linum   #656565
 # GUI
 
 proc gui {} {
+    set ::searchWord {}
+    LabelEntry .srh -textvariable ::searchWord
+    pack .srh -padx 5 -pady {5 0} -anchor w
+
     ttk::labelframe .f -text {new file}
     text .f.linum -width $::linum_png_width -bg gray -bd 0 -fg $::fg_linum
     .f.linum tag configure justright -justify right
     .f.linum insert end 1 justright
     .f.linum configure -state disable
-    text .f.content -bd 0 -undo 1 -yscrollcommand contentYScroll
+    text .f.content -bd 0 -undo 1 -yscrollcommand contentYScroll -wrap none
     ttk::scrollbar .f.sb -command {.f.content yview}
 
     pack .f.linum -side left -fill y -pady {0 6}
     pack .f.content -side left -fill both -expand 1 -pady {0 6}
     pack .f.sb -side right -fill y -pady {0 6}
-    pack .f -fill both -expand 1 -pady {2 0}
 
     frame .sf
     ttk::label .sf.lb
@@ -30,7 +33,9 @@ proc gui {} {
 
     pack .sf.sg -side right
     pack .sf.lb -side left -fill x -anchor w
+
     pack .sf -side bottom -fill x
+    pack .f -fill both -expand 1 -pady {2 0} -side bottom
 
     wm title . cucumber
     package require img::png
@@ -264,5 +269,21 @@ proc indexWordEnd {id} {
 # TEST
 
 if 1 {
+    cd [file dirname $argv0]
     source config.txt
+
+    # open file with start of application
+    if [catch {
+	set ::current_file [lindex $argv 0]
+        .f configure -text $::current_file
+	set fid [open $::current_file r]
+	.f.content insert 1.0 [read $fid]
+	close $fid
+	switchHighLightLine
+	incrLinum
+	.f.content edit modified 0
+	set ::old_anchor 1
+    }] {
+	.f configure -text {new file}
+    }
 }
