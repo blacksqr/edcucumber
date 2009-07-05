@@ -28,6 +28,7 @@ proc searchNextword {} {
         }
     }
     catch {switchHighLightLine}
+    .f.content see insert
     focus .f.content
 }
 
@@ -37,6 +38,9 @@ proc searchPrevWord {} {
         .f.content mark set insert [.f.content search -backward -exact $sw insert]
     }
     catch {switchHighLightLine}
+    .f.content see insert
     focus .f.content
 }
+
+
 
