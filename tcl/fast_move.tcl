@@ -16,6 +16,9 @@ proc fastMoveEvents {} {
         {<Alt-<>       hdlMoveToDocHead}
         {<Alt-greater> hdlMoveToDocEnd}
 	{<Alt-m>       hdlMoveToContentHead}
+        
+        {<Control-BackSpace> hdlBackSpaceWord}
+        {<Control-Delete> hdlDeletWord}
     }
 }
 
@@ -67,8 +70,26 @@ proc hdlMoveToDocEnd {} {
     }
 }
 
+proc hdlBackSpaceWord {} {
+    set old [.f.content index insert]
+    hdlMoveToPreviousWord
+    after idle [list _dd insert $old]
+}
+
+proc hdlDeletWord {} {
+    set old [.f.content index insert]
+    hdlMoveToNextWord
+    after idle [list _dd $old insert]
+}
+
+proc _dd {f c} {
+    .f.content delete $f $c
+    decrLinum
+}
 
 #-------------------------------------------------------#
 
 bindFastMove
+
+
 
