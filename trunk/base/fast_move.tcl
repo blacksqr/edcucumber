@@ -82,7 +82,7 @@ proc hdlBackSpaceWord {} {
 proc hdlDeletWord {} {
     set old [.f.content index insert]
     hdlMoveToNextWord
-    after idle [list _dd $old "insert -1c"]
+    after idle [list _dd $old insert]
 }
 
 proc _dd {f c} {
