@@ -8,8 +8,10 @@ package require pngObj
 gui
 
 # from directory tcl
-source tcl/menu.tcl
-source tcl/fast_move.tcl
+source base/menu.tcl
+source base/fast_move.tcl
+
+# from directory tcl
 source tcl/indent_by_reg.tcl
 source tcl/run.tcl
 
@@ -17,13 +19,17 @@ bindDefaultEvents
 
 # from directory plus
 source plus/hi_line.tcl
+
+set syntax_file {tcl/tcl-tk.uew}
 source plus/hi_syntax.tcl
+
 source plus/auto_complete.tcl
 source plus/search.tcl
 source plus/extra_complete.tcl
 
-.f.content edit modified 0
-
 # extra auto-complete files
 set extra_files [list ./verbos/test.txt]
 initExtraFiles
+
+# something
+.f.content edit modified 0
