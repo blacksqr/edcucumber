@@ -51,9 +51,12 @@ proc hdlMoveToPreviousWord {} {
 }
 
 proc hdlMoveToNextWord {} {
+    set span {}
     if [.f.content compare insert == {end - 1c}] {return}
     set start [.f.content search -forwards -regexp -nolinestop -count span {\w+\W} insert {end - 1c}]
-    after idle ".f.content mark set insert \"$start + $span c - 1 c\"; .f.content see insert"
+    if {$span ne {}} {
+        after idle ".f.content mark set insert \"$start + $span c - 1 c\"; .f.content see insert"
+    }
 }
 
 proc hdlMoveToDocHead {} {

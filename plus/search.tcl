@@ -25,7 +25,7 @@ proc searchNextword {} {
     if $::if_search_reg {
         set mod {-regexp}
     } else {
-        set mode {-exact}
+        set mod {-exact}
     }
     
     set sw [string trim $::searchWord]
@@ -49,7 +49,7 @@ proc searchPrevWord {} {
     if $::if_search_reg {
         set mod {-regexp}
     } else {
-        set mode {-exact}
+        set mod {-exact}
     }
     
     set sw [string trim $::searchWord]
