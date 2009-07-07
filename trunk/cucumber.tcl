@@ -6,6 +6,7 @@ package require tile
 set linum 1
 set linum_png_width 2
 set fg_linum   #656565
+set buffer {}
 
 #-------------------------------------------------------#
 # GUI
@@ -289,4 +290,8 @@ if 1 {
 	.f configure -text {new file}
     }
 }
+
+
+
+
 
