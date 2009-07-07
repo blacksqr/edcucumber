@@ -4,7 +4,6 @@ set action 0
 set auto_base {}
 set auto_loop 0
 set auto_search_pos {}
-set extra_search_pos 1.0
 set auto_list [list ]
 bind .f.content <Alt-/> {+ hdlAutoComplete}
 
@@ -12,18 +11,23 @@ proc hdlAutoComplete {} {
     if $::action {
 	# puts {run to here 1}
 	getBase
+	catch {  set ::extra_pos end }
     }
     
     if {$::auto_base != {}} {
-	# puts {run to here 2}
-	# puts $::auto_list
-	if ![ifFinishSearch] {
-	    # puts {run to here 3}
-	    getNextAutoWord
-	}
+        # puts {run to here 2}
+        # puts $::auto_list
+        if ![ifFinishSearch] {
+            # puts {run to here 3}
+            getNextAutoWord
+        } else {
+            #catch {
+                if ![ifExtraFinished] {
+                    getNextExtraWord
+                }
+            #}
+        }
         
-        getNextFromExtra
-
 	if ![llength $::auto_list] {
 	    return 
 	}
@@ -83,52 +87,3 @@ proc getNextAutoWord {} {
     }
 }
 
-#----------------------------------------------------------#
-
-proc indexWordHeadExtra {id} {
-    if [.extra compare $id == "$id linestart"] {
-	return [.extra index $id]
-    } else {
-	set i 1
-	while {![regexp {\W} [.extra get "$id - $i c"]]} {
-	    if [.extra compare "$id - $i c" == "$id linestart"] {
-		return [.extra index {insert linestart}]
-	    }
-	    incr i
-	}
-	return [.extra index "$id - $i c + 1c"]
-    }
-}
-
-proc getNextFromExtra {} {
-    set old $::extra_search_pos
-    set ::extra_search_pos [.extra search -nolinestop -backward \
-			       -regexp $::auto_base $::extra_search_pos]
-    if {$::extra_search_pos eq {}} {return}
-    if [catch {.extra compare $::extra_search_pos > $old}] {return}
-    while {[.extra compare $::extra_search_pos != [indexWordHeadExtra $::extra_search_pos]]} {
-        set ::extra_search_pos [.extra search -nolinestop -backward \
-                                   -regexp $::auto_base $::extra_search_pos]
-    }
-    if {$::extra_search_pos != {}} {
-	set word [.extra get $::extra_search_pos "$::extra_search_pos wordend"]
-	# puts $word
-        # puts "$word => $::auto_list"
-	foreach w $::auto_list {
-	    if {$w == $word} {
-		return
-	    }
-	}
-	lappend ::auto_list $word
-    }
-}
-
-proc initExtraFiles {} {
-    text .extra
-    foreach file $::extra_file_list {
-        set fid [open $file r]
-        .extra insert 1.0 [read $fid]
-        .extra insert end "\n"
-        close $fid
-    }
-}

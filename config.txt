@@ -20,8 +20,10 @@ source plus/hi_line.tcl
 source plus/hi_syntax.tcl
 source plus/auto_complete.tcl
 source plus/search.tcl
+source plus/extra_complete.tcl
 
 .f.content edit modified 0
 
-
-
+# extra auto-complete files
+set extra_files [list ./verbos/test.txt]
+initExtraFiles

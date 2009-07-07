@@ -86,7 +86,7 @@ proc saveDoc {} {
     }
     
     set fid [open $filename w]
-    puts $fid [.f.content get 1.0 end]
+    puts -nonewline $fid [.f.content get 1.0 "end -1c"]
     close $fid
 
     .f.content edit modified 0
@@ -102,7 +102,7 @@ proc saveAsDoc {} {
 	return
     }
     set fid [open $filename w]
-    puts $fid [.f.content get 1.0 end]
+    puts -nonewline $fid [.f.content get 1.0 "end -1c"]
     close $fid
 }
 
@@ -137,6 +137,3 @@ proc confirm {text yes_command no_command} {
     tkwait visibility .cf
     grab .cf
 }
-
-
-
