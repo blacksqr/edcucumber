@@ -29,7 +29,7 @@ foreach n {0 1 2 3 4 5 6 7 8 9} {
 }
 
 # set f [open plus/tcl-tk.uew r]
-set f [open syntax/tcl-tk.uew r]
+set f [open $syntax_file r]
 while {![eof $f]} {
     gets $f line
     set line [string trim $line]
