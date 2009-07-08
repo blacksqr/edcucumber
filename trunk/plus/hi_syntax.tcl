@@ -24,9 +24,9 @@ if 0 {
 
 array set syntax {}
 
-foreach n {0 1 2 3 4 5 6 7 8 9} {
-    array set syntax "$n Num"
-}
+#foreach n {0 1 2 3 4 5 6 7 8 9} {
+#    array set syntax "$n Num"
+#}
 
 # set f [open plus/tcl-tk.uew r]
 set f [open $syntax_file r]
@@ -139,6 +139,9 @@ proc hiSyntax {id_1 id_2} {
 }
 
 proc whichTag {w} {
+    if [regexp {(\d+)\.*(\d*)} $w] {
+        return Num
+    }
     if [catch {set tag $::syntax($w)}] {
 	return {}
     }
