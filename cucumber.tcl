@@ -290,8 +290,3 @@ if 1 {
 	.f configure -text {new file}
     }
 }
-
-
-
-
-
