@@ -43,6 +43,7 @@ proc searchNextword {} {
     }
     catch {switchHighLightLine}
     focus .f.content
+    .f.content see insert
 }
 
 proc searchPrevWord {} {
@@ -63,4 +64,5 @@ proc searchPrevWord {} {
     }
     catch {switchHighLightLine}
     focus .f.content
+    f.content see insert
 }

@@ -10,6 +10,11 @@ proc menuData {} {
 	    {}
 	    {Quit   q  0 {} quitApp}
 	}}
+        {operation Operation {
+            {Replace {} 0 {} replaceWord}
+            {}
+            {Shell {} 0 {} shell}
+        }}
     }
 }
 
@@ -29,17 +34,22 @@ proc createNewDoc {} {
     } else {
 	_newDoc
     }
+}
+
+proc _newDoc {} {
+    if {$::current_file eq {shell}} {
+        proc runCmd {} {}
+    }
+    
+    .f configure -text {new file}
+    .f.content delete 1.0 end
+    set ::current_file {}
+    
     switchHighLightLine
     decrLinum
     incrLinum
     .f.content edit modified 0
     set ::old_anchor 1
-}
-
-proc _newDoc {} {
-    .f configure -text {new file}
-    .f.content delete 1.0 end
-    set ::current_file {}
 }
 
 proc openDoc {} {
@@ -51,6 +61,10 @@ proc openDoc {} {
 }
 
 proc _openDoc {} {
+    if {$::current_file eq {shell}} {
+        proc runCmd {} {}
+    }
+    
     set filename [tk_getOpenFile -filetypes $::types]
     if {$filename eq {}} {
 	return
@@ -63,6 +77,7 @@ proc _openDoc {} {
     .f.content insert 1.0 [read $fid]
     close $fid
     switchHighLightLine
+    decrLinum
     incrLinum
 
     .f.content edit modified 0
@@ -74,7 +89,7 @@ proc saveDoc {} {
 	return 0
     }
     
-    if {$::current_file eq {}} {
+    if {$::current_file eq {} || $::current_file eq {shell}} {
         set filename {}
 	set filename [tk_getSaveFile -filetypes $::types]
 	if {$filename eq {}} {
@@ -112,6 +127,10 @@ proc quitApp {} {
     } else {
 	exit
     }
+}
+
+proc replaceWord {} {
+    
 }
 
 #------------------------------------------------#
