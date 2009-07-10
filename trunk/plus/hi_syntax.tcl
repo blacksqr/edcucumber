@@ -139,7 +139,7 @@ proc hiSyntax {id_1 id_2} {
 }
 
 proc whichTag {w} {
-    if [regexp {(\d+)\.*(\d*)} $w] {
+    if [regexp {^\d+(\.\d+)?$} $w] {
         return Num
     }
     if [catch {set tag $::syntax($w)}] {

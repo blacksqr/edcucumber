@@ -37,6 +37,7 @@ proc hdlAutoComplete {} {
 	    set ::auto_loop 0
 	}
 	# puts "$::wf => $::we"
+        # puts "$::auto_loop => $::auto_list"
 	.f.content replace $::wf [indexWordEnd $::wf] [lindex $::auto_list $::auto_loop]
 	if ![catch {info args switchHighLightLine}] {
 	    switchHighLightLine
@@ -56,6 +57,7 @@ proc getBase {} {
 	set ::auto_search_pos [.f.content index "$::wf -1c"]
 	set ::auto_base [.f.content get $::wf insert]
 	set ::auto_list [list $::auto_base]
+        set ::auto_loop 0
     }
 }
 

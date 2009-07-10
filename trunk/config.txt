@@ -18,6 +18,7 @@ source tcl/run.tcl
 bindDefaultEvents
 
 # from directory plus
+source plus/shell.tcl
 source plus/hi_line.tcl
 
 set syntax_file {tcl/tcl-tk.uew}
