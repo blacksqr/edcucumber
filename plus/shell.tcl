@@ -65,11 +65,11 @@ proc _runCmd {} {
         }
     }
     
-    if [catch {set fd [open "|$cmd"]}] {
+    if [catch {set ::fd [open "|$cmd"]}] {
         .f.content insert end "\n$::prompt"
     } else {
-        fileevent $fd readable [list readFd $fd]
-        fconfigure $fd -blocking 0 -buffering line
+        fileevent $::fd readable [list readFd $::fd]
+        fconfigure $::fd -blocking 0 -buffering line
     }
     
     return
@@ -79,22 +79,27 @@ proc readFd {fd} {
     if [eof $fd] {
         close $fd
         .f.content insert end "\n$::prompt"
-        
-        .f.content mark set insert end
-        .f.content see insert
-        
-        switchHighLightLine
-        decrLinum
-        incrLinum
     } else {
         .f.content insert end "\n[string trim [gets $fd]]"
     }
+    
+    .f.content mark set insert end
+    .f.content see insert
+    
+    switchHighLightLine
+    decrLinum
+    incrLinum
 }
 
 #----------------------------------------------#
 
 # shell
 
+set fd {}
 proc runCmd {} {}
 
 bind .f.content <Return> {+ runCmd}
+bind .f.content <Control-c><Control-c> {
+    catch {close $::fd}
+    .f.content insert end "\n$::prompt"
+}
