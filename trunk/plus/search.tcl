@@ -64,5 +64,5 @@ proc searchPrevWord {} {
     }
     catch {switchHighLightLine}
     focus .f.content
-    f.content see insert
+    .f.content see insert
 }

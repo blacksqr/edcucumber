@@ -20,6 +20,7 @@ proc menuData {} {
 
 menuTool::init [menuData]
 . configure -menu .mu
+wm protocol . WM_DELETE_WINDOW quitApp
 
 set current_file {}
 set types {
@@ -106,7 +107,7 @@ proc saveDoc {} {
 
     .f.content edit modified 0
     
-    .sf.lb configure -text "Saved Done at : [clock format [clock seconds] -format {%H:%M:%S}]"
+    .sf.lb configure -text "Saving Done at : [clock format [clock seconds] -format {%H:%M:%S}]"
     
     return 1
 }
@@ -123,9 +124,9 @@ proc saveAsDoc {} {
 
 proc quitApp {} {
     if [.f.content edit modified] {
-	confirm {Save current documnet?} [list if "\[saveDoc\]" "{exit}"] {exit}
+        confirm {Save current documnet?} [list if "\[saveDoc\]" "{exit}"] {exit}
     } else {
-	exit
+        exit
     }
 }
 
