@@ -65,7 +65,7 @@ proc _runCmd {} {
         }
     }
     
-    if [catch {set ::fd [open "|$cmd"]}] {
+    if [catch {open "|$cmd"} ::fd] {
         .f.content insert end "\n$::prompt"
     } else {
         fileevent $::fd readable [list readFd $::fd]
@@ -100,6 +100,12 @@ proc runCmd {} {}
 
 bind .f.content <Return> {+ runCmd}
 bind .f.content <Control-c><Control-c> {
-    catch {close $::fd}
+    #catch {
+        foreach id [pid $::fd] {
+            # exec kill $id
+            puts $id
+        }
+        close $pid
+    #}
     .f.content insert end "\n$::prompt"
 }
