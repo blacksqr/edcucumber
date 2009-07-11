@@ -278,6 +278,7 @@ if 1 {
     # open file with start of application
     if [catch {
 	set ::current_file [lindex $argv 0]
+        cd [file dirname $::current_file]
         .f configure -text $::current_file
 	set fid [open $::current_file r]
 	.f.content insert 1.0 [read $fid]
