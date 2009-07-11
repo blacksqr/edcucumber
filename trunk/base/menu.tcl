@@ -156,4 +156,5 @@ proc confirm {text yes_command no_command} {
 
     tkwait visibility .cf
     grab .cf
+    wm attributes .cf -toolwindow 1
 }
