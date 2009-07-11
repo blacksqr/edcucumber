@@ -13,6 +13,15 @@ if 0 {
     .f.content insert end $prompt
 }
 
+proc _hi {} {
+    .f.content mark set insert end
+    .f.content see insert
+    
+    switchHighLightLine
+    decrLinum
+    incrLinum 
+}
+
 proc shell {} {
     if [.f.content edit modified] {
         confirm {Save current document?} [list if "\[saveDoc]" "_shell; destroy .cf"] {_shell; destroy .cf}
@@ -33,12 +42,7 @@ proc _shell {} {
     proc runCmd {} {
         _runCmd
         
-        .f.content mark set insert end
-        .f.content see insert
-        
-        switchHighLightLine
-        decrLinum
-        incrLinum
+        _hi
         
         .f.content edit modified 0
         
@@ -59,6 +63,7 @@ proc _runCmd {} {
     if [regexp {^cd .*} $cmd] {
         if [catch {cd [string range $cmd 3 [string length $cmd]]}] {
             .f.content insert end "\n$::prompt"
+            _hi
             return
         } else {
             set ::prompt "[pwd]>"
@@ -71,8 +76,6 @@ proc _runCmd {} {
         fileevent $::fd readable [list readFd $::fd]
         fconfigure $::fd -blocking 0 -buffering line
     }
-    
-    return
 }
 
 proc readFd {fd} {
@@ -83,29 +86,26 @@ proc readFd {fd} {
         .f.content insert end "\n[string trim [gets $fd]]"
     }
     
-    .f.content mark set insert end
-    .f.content see insert
-    
-    switchHighLightLine
-    decrLinum
-    incrLinum
+    _hi
 }
 
 #----------------------------------------------#
 
 # shell
 
+package require Tclx
+
 set fd {}
 proc runCmd {} {}
 
 bind .f.content <Return> {+ runCmd}
 bind .f.content <Control-c><Control-c> {
-    #catch {
+    catch {
         foreach id [pid $::fd] {
-            # exec kill $id
-            puts $id
+            kill $id
         }
         close $pid
-    #}
+    }
     .f.content insert end "\n$::prompt"
+    _hi
 }
