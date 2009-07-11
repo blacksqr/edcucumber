@@ -14,15 +14,25 @@ if 0 {
 }
 
 proc shell {} {
-    createNewDoc
-    set current_file shell
+    if [.f.content edit modified] {
+        confirm {Save current document?} [list if "\[saveDoc]" "_shell; destroy .cf"] {_shell; destroy .cf}
+    } else {
+        _shell
+    }
+}
+
+proc _shell {} {
+    .f.content delete 1.0 end
+    decrLinum
+    incrLinum
+    
+    set ::current_file shell
     .f configure -text shell
     
     set ::old_anchor 1
     proc runCmd {} {
         _runCmd
         
-
         .f.content mark set insert end
         .f.content see insert
         
@@ -69,19 +79,22 @@ proc readFd {fd} {
     if [eof $fd] {
         close $fd
         .f.content insert end "\n$::prompt"
+        
+        .f.content mark set insert end
+        .f.content see insert
+        
+        switchHighLightLine
+        decrLinum
+        incrLinum
     } else {
         .f.content insert end "\n[string trim [gets $fd]]"
     }
-    
-
-    .f.content mark set insert end
-    .f.content see insert
-        
-    switchHighLightLine
-    decrLinum
-    incrLinum
 }
 
 #----------------------------------------------#
 
 # shell
+
+proc runCmd {} {}
+
+bind .f.content <Return> {+ runCmd}
