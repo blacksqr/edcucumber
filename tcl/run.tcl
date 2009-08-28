@@ -15,9 +15,3 @@ proc runScript {} {
     set err [interp eval foo [.f.content get 1.0 end]]
     .sf.lb configure -text "result : $err"
 }
-
-
-
-
-
-
