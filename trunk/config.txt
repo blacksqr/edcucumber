@@ -11,9 +11,9 @@ gui
 source base/menu.tcl
 source base/fast_move.tcl
 
-# from directory tcl
-source tcl/indent_by_reg.tcl
-source tcl/run.tcl
+# from directory android
+source android/indent_by_reg.tcl
+source android/create_new_activity.tcl
 
 bindDefaultEvents
 
@@ -21,7 +21,7 @@ bindDefaultEvents
 source plus/shell.tcl
 source plus/hi_line.tcl
 
-set syntax_file {tcl/tcl-tk.uew}
+set syntax_file {android/java14_uew.txt}
 source plus/hi_syntax.tcl
 
 source plus/auto_complete.tcl

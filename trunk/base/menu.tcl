@@ -97,6 +97,7 @@ proc saveDoc {} {
 	    return 0
 	}
 	set ::current_file $filename
+        .f configure -text $filename
     } else {
 	set filename $::current_file
     }
@@ -148,7 +149,7 @@ proc confirm {text yes_command no_command} {
     pack .cf.yes .cf.no -side left
 
     focus .cf.yes
-    wm title .cf {Are you sur?}
+    wm title .cf {Are you sure?}
 
     set x [expr [winfo rootx .] + [winfo reqwidth .]/2 - [winfo reqwidth .cf]/2]
     set y [expr [winfo rooty .] + [winfo reqheight .]/2 - [winfo reqheight .cf]/2]
