@@ -61,7 +61,7 @@ proc createNewActivity {} {
 	if {[string last "/" $::android_path] < [expr [string length $::android_path] - 1]} {
 	    set ::android_path "${::android_path}/"
 	}
-	set ::android_projects [glob "${::android_projects}*"]
+	set ::android_projects [glob "${::android_projects}src/*"]
     }
 }
 
@@ -104,19 +104,50 @@ proc _getPackages {root} {
 	}
     }
     if {$root == $root_package} {
-	lappend $::android_packages $root
+	set pj [.android.fr1.et1 get]
+	regsub -all {/} [string trim $root "$::{android_path}${pj}/src/"] {\.} root_package
+	lappend $::android_packages  $root_package
     }
 }
 
 proc _createNewActivity {} {
     set package [.android.fr1.et1 get]
+    regsub -all {\.} $package {/} nPackage
     set activity [.android.fr1.et2 get]
     if {$activity != {}} {
-	set fid [open "${::android_path}${package}/${activity}" w]
-	puts $fid ""
+	set fid [open "${::android_path}${nPackage}/${activity}" w]
+	puts $fid "// Created By Cucumber
+package $package;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.*;
+
+public class $activity extends Activity {
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+	TextView tv = new TextView(this);
+	setContentView(tv);
+    }
+}
+"
 	close $fid
 
-	set fid {}
+set activity_xml [string tolower $activity]
+set fid [open "${::android_path}$pj/res/layout/${activity_xml}.xml" w]
+puts $fid "
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+</LinearLayout>
+"
+close $fid
     }
 }
 

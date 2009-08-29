@@ -38,7 +38,7 @@ proc gui {} {
     pack .sf.lb -side left -fill x -anchor w
 
     pack .sf -side bottom -fill x
-    pack .f -fill both -expand 1 -pady {2 0} -side bottom
+    pack .f -fill both -expand 1 -pady {2 0} ;#-side bottom
 
     wm title . cucumber
     package require img::png
