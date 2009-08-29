@@ -14,6 +14,7 @@ source base/fast_move.tcl
 # from directory android
 source android/indent_by_reg.tcl
 source android/create_new_activity.tcl
+source android/console_extra.tcl
 
 bindDefaultEvents
 

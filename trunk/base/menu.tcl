@@ -74,11 +74,11 @@ proc _openDoc {} {
     set ::current_file $filename
 
     set fid [open $filename r]
-    .f.content delete 1.0 end    
+    .f.content delete 1.0 end
+    decrLinum
     .f.content insert 1.0 [read $fid]
     close $fid
     switchHighLightLine
-    decrLinum
     incrLinum
 
     .f.content edit modified 0
