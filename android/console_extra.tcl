@@ -24,9 +24,12 @@ proc _main {} {
     set ::com_contin     {miss}
     set ::com_history    {}
     set ::com_history_id {}
+    set ::com_region_readonly 1.6
 
     .ex_con.text insert end $::head
     .ex_con.text tag add head_tag {insert linestart} {insert lineend}
+
+    init_region_readonly
     bind .ex_con.text <Return> {_con_return .ex_con.text}
     bind .ex_con.text <Control-Up> {_prev_history .ex_con.text}
 }
@@ -41,8 +44,7 @@ proc _con_return {t} {
 	$t insert end "\n"
 	set h [$t search -backward {%} end]
 	
-	set ::com_buffer [$t get "$h +1c" "insert lineend"]
-	puts $::com_buffer
+	set ::com_buffer [string trim [$t get "$h +1c" "insert lineend"]]
 	
 	if {$::com_buffer == {}} {
 	    $t insert end "$::head"
@@ -56,7 +58,7 @@ proc _con_return {t} {
 	    }
 	    $t insert end $::head
 	    $t tag add head_tag {insert linestart} {insert lineend}
-	    lappend ::com_history [string trim $::com_buffer]
+	    lappend ::com_history $::com_buffer
 	} else {
 	    if [string first $::com_contin $::com_err] {
 		$t insert end "${::com_err}\n${::head}"
@@ -66,7 +68,27 @@ proc _con_return {t} {
     }
 
     $t see insert
+    set ::com_region_readonly [$t index insert]
     return -code break
+}
+
+proc init_region_readonly {} {
+    rename .ex_con.text ex_con
+    proc .ex_con.text {args} {
+	switch [lindex $args 0] {
+	    "insert" {
+		if [ex_con compare insert >= $::com_region_readonly] { 
+		    return [eval ex_con $args]
+		}
+	    }
+	    "delete" {
+		if [ex_con compare insert > $::com_region_readonly] { 
+		    return [eval ex_con $args]
+		}
+	    }
+	    "default" {return [eval ex_con $args]}
+	}
+    }
 }
 
 proc _verify_con_buffer {} {
