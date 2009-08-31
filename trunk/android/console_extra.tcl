@@ -49,20 +49,20 @@ proc _con_return {t} {
 	if {$::com_buffer == {}} {
 	    $t insert end "$::head"
 	    $t tag add head_tag {insert linestart} {insert lineend}
-	} 
-	
-	if [_verify_con_buffer] {
-	    if {$::com_result ne {}} {
-		$t insert end $::com_result
-		$t insert end "\n"
-	    }
-	    $t insert end $::head
-	    $t tag add head_tag {insert linestart} {insert lineend}
-	    lappend ::com_history $::com_buffer
-	} else {
-	    if [string first $::com_contin $::com_err] {
-		$t insert end "${::com_err}\n${::head}"
+	} else { 
+	    if [_verify_con_buffer] {
+		if {$::com_result ne {}} {
+		    $t insert end $::com_result
+		    $t insert end "\n"
+		}
+		$t insert end $::head
 		$t tag add head_tag {insert linestart} {insert lineend}
+		lappend ::com_history $::com_buffer
+	    } else {
+		if [string first $::com_contin $::com_err] {
+		    $t insert end "${::com_err}\n${::head}"
+		    $t tag add head_tag {insert linestart} {insert lineend}
+		}
 	    }
 	}
     }
@@ -78,15 +78,17 @@ proc init_region_readonly {} {
 	switch [lindex $args 0] {
 	    "insert" {
 		if [ex_con compare insert >= $::com_region_readonly] { 
-		    return [eval ex_con $args]
+		    uplevel 1 ex_con $args
 		}
 	    }
 	    "delete" {
 		if [ex_con compare insert > $::com_region_readonly] { 
-		    return [eval ex_con $args]
+		    uplevel 1 ex_con $args
 		}
 	    }
-	    "default" {return [eval ex_con $args]}
+	    "default" {
+		uplevel 1 ex_con $args
+	    }
 	}
     }
 }
