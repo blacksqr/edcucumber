@@ -5,7 +5,7 @@ proc _main {} {
     
     pack .ex_con -side bottom -fill x
     pack .ex_con.text -side left -expand 1 -fill x
-    pack .ex_con.sb -side right -fill y -expand 1
+    pack .ex_con.sb -side right -fill y
 
     .ex_con.text tag configure head_tag -foreground red
 
@@ -94,7 +94,7 @@ proc init_region_readonly {} {
 }
 
 proc _verify_con_buffer {} {
-    return [expr  ![catch "set ::com_result \[interp eval con {${::com_buffer}}\]" ::com_err]]
+    return [expr  ![catch "set ::com_result \[interp eval con ${::com_buffer}\]" ::com_err]]
 }
 
 proc _prev_history {t} {
