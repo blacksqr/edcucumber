@@ -9,13 +9,17 @@ proc _main {} {
 
     .ex_con.text tag configure head_tag -foreground red
 
-    interp create con
-    con eval {
-	rename puts _puts
-	proc puts {args} {
-	    return $args
-	}
+    proc _init_con {} {
+        catch {interp delete con}
+        interp create con
+        con eval {
+            rename puts _puts
+            proc puts {args} {
+                return $args
+            }
+        }
     }
+    _init_con
 
     set ::head "tclsh%"
     set ::com_buffer     {}
@@ -46,10 +50,15 @@ proc _con_return {t} {
 	
 	set ::com_buffer [string trim [$t get "$h +1c" "insert lineend"]]
 	
-	if {$::com_buffer == {}} {
-	    $t insert end "$::head"
-	    $t tag add head_tag {insert linestart} {insert lineend}
-	} else { 
+        if {$::com_buffer == {}} {
+            $t insert end "$::head"
+            $t tag add head_tag {insert linestart} {insert lineend}
+        } elseif {$::com_buffer == {init}} {
+            _init_con
+            $t insert end "#-------new-------#\n"
+            $t insert end "$::head"
+            $t tag add head_tag {insert linestart} {insert lineend}
+        } else { 
 	    if [_verify_con_buffer] {
 		if {$::com_result ne {}} {
 		    $t insert end $::com_result
@@ -94,7 +103,7 @@ proc init_region_readonly {} {
 }
 
 proc _verify_con_buffer {} {
-    return [expr  ![catch "set ::com_result \[interp eval con ${::com_buffer}\]" ::com_err]]
+    return [expr  ![catch "set ::com_result \[interp eval con \"$::com_buffer\"\]" ::com_err]]
 }
 
 proc _prev_history {t} {

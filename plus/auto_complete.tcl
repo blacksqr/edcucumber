@@ -22,9 +22,9 @@ proc hdlAutoComplete {} {
             getNextAutoWord
         } else {
             #catch {
-                if ![ifExtraFinished] {
-                    getNextExtraWord
-                }
+	    if ![ifExtraFinished] {
+		getNextExtraWord
+	    }
             #}
         }
         
@@ -42,8 +42,8 @@ proc hdlAutoComplete {} {
 	if ![catch {info args switchHighLightLine}] {
 	    switchHighLightLine
 	}
-	if ![catch {info args hiSyntax}] {
-	    hiSyntax $::wf [indexWordEnd $::we]
+	if ![catch {info args hiWord}] {
+	    hiWord $::wf
 	}
 	after idle {set ::action 0}
     }
@@ -80,12 +80,19 @@ proc getNextAutoWord {} {
 	set word [.f.content get $::auto_search_pos "$::auto_search_pos wordend"]
 	# puts $word
         # puts "$word => $::auto_list"
-	foreach w $::auto_list {
-	    if {$w == $word} {
-		return
-	    }
+        set duplicate 0
+        foreach w $::auto_list {
+            if {$w == $word} {
+                set duplicate 1
+                break
+            }
 	}
-	lappend ::auto_list $word
+        if $duplicate {
+            if ![ifFinishSearch] {
+                return [getNextAutoWord]
+            }
+        } else {
+            lappend ::auto_list $word
+        }
     }
 }
-

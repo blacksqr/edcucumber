@@ -25,8 +25,12 @@ proc fastMoveEvents {} {
 #-------------------------------------------------------#
 
 proc hdlMoveToContentHead {} {
-    .f.content mark set insert [.f.content search -regexp {\w} {insert linestart} {insert lineend}]
-    .f.content see insert
+    set id [.f.content search -regexp {\S} {insert linestart} {insert lineend}]
+    if {$id != {}} {
+	.f.content mark set insert $id
+	.f.content see insert
+    }
+    return -code break
 }
 
 proc hdlMoveToLineEnd {} {
@@ -76,16 +80,20 @@ proc hdlMoveToDocEnd {} {
 proc hdlBackSpaceWord {} {
     set old [.f.content index insert]
     hdlMoveToPreviousWord
-    after idle [list _dd insert "$old -1c"]
+    after idle [list _dd insert $old]
+    return -code break
 }
 
 proc hdlDeletWord {} {
     set old [.f.content index insert]
     hdlMoveToNextWord
     after idle [list _dd $old insert]
+    return -code break
 }
 
 proc _dd {f c} {
+    # puts "{$f} => {$c}"
+    # puts "[.f.content index $f] => [.f.content index $c]"
     .f.content delete $f $c
     decrLinum
 }
@@ -93,6 +101,3 @@ proc _dd {f c} {
 #-------------------------------------------------------#
 
 bindFastMove
-
-
-
