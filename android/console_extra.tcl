@@ -103,7 +103,7 @@ proc init_region_readonly {} {
 }
 
 proc _verify_con_buffer {} {
-    return [expr  ![catch "set ::com_result \[interp eval con \"$::com_buffer\"\]" ::com_err]]
+    return [expr ![catch {set ::com_result [interp eval con $::com_buffer]} ::com_err]]
 }
 
 proc _prev_history {t} {
