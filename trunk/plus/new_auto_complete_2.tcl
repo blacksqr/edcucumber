@@ -18,52 +18,44 @@ proc initAutoComp {} {
         set ::auto_comp_word  [.f.content get [indexWordHead insert] $::auto_comp_end]
         set ::auto_comp_list  [list $::auto_comp_word]
         set ::search_target   [list ".f.content insert" ".extra end"]
+        set ::auto_comp_list_id 0
         initGetNextWord
-    } else {
-        set ::auto_comp_limit {}
-        set ::auto_comp_end   {}
-        set ::auto_comp_pos   {}
-        set ::auto_comp_list  {}
-        set ::auto_comp_word  {}
-        set ::search_target   {}
     }
-    set ::auto_comp_list_id 0
 }
 
 proc initGetNextWord {} {
     if ![llength $::search_target] { return 0 }
 
-    set target_item [lindex $::search_target 0]
+    set ::target_item [lindex $::search_target 0]
     lreplace $::search_target 0 0
     set ::auto_comp_target [lindex $target_item 0]
-    set ::auto_comp_limit [$::auto_comp_target search -nolinestop -backwards -regexp $::auto_comp_word [lindex $target_item 1]]
+    set ::auto_comp_limit [$::auto_comp_target search -nolinestop -backwards -regexp "$::auto_comp_word" [lindex $target_item 1]]
     if {$::auto_comp_limit != {}} {
-        set ::auto_comp_pos "$::auto_comp_target index {$::auto_comp_limit -1c}"
-        while {([$::auto_comp_target compare $::auto_comp_pos != [indexWordHead $::auto_comp_pos]]) \
-                && ![ifAutoCompSearchFinished]} {
-                    set ::auto_comp_pos [$::auto_comp_target search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
-                }
-        if [ifAutoCompSearchFinished] {
-            initGetNextWord 
-        } else {
-            set ::auto_comp_limit $::auto_comp_pos
-            set ::auto_comp_pos "$::auto_comp_target index {$::auto_comp_limit -1c}"
-            return 1
+        set fake_limit $::auto_comp_limit
+        if [$::auto_comp_target compare $::auto_comp_limit != [indexWordHead $::auto_comp_limit]] {
+            set ::auto_comp_limit [$::auto_comp_target search -nolinestop -backwards -regexp $::auto_comp_word "$fake_limit -1c"]
+            while {([$::auto_comp_target compare $::auto_comp_limit != [indexWordHead $::]]) \
+                    && ([$::auto_comp_target compare $fake_limit != $::auto_comp_limit]) } {
+                        set ::auto_comp_limit [$::auto_comp_target search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_limit]
+                    }
+            if [$::auto_comp_target compare $fake_limit == $::auto_comp_limit] {
+                return [initGetNextWord]
+            }
         }
-    } else {
-        initGetNextWord
     }
+    set ::auto_comp_pos [$::auto_comp_target index "$::auto_comp_limit -1c"]
+    return 1
 }
                             
 proc getNextWord {} {
     set ::auto_comp_pos [$::auto_comp_target search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
-    if [ifAutoCompSearchFinished] { if [initGetNextWord] {getNextWord} }
+    if [ifAutoCompSearchFinished] { if [initGetNextWord] {return [getNextWord]} }
     
-    while {[$::auto_comp_target compare $::auto_comp_pos != [indexWordHead $::auto_comp_pos]] |
-        && ![ifAutoCompSearchFinished]} {
-            set ::auto_comp_pos [$::auto_comp_target search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
-        }
-    if [ifAutoCompSearchFinished] { if [initGetNextWord] {getNextWord} } 
+    while {[$::auto_comp_target compare $::auto_comp_pos != [indexWordHead $::auto_comp_pos]] \
+            && ![ifAutoCompSearchFinished]} {
+                set ::auto_comp_pos [$::auto_comp_target search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
+            }
+    if [ifAutoCompSearchFinished] { if [initGetNextWord] {return [getNextWord]} } 
 
     set word [$::auto_comp_target get $::auto_comp_pos "$::auto_comp_pos wordend"]
     set duplicate 0
@@ -77,7 +69,7 @@ proc getNextWord {} {
         if ![ifAutoCompSearchFinished] {
             return [getNextWord]
         } else {
-            if [initGetNextWord] {getNextWord}
+            if [initGetNextWord] {return [getNextWord]}
         }
     } else {
         lappend ::auto_comp_list $word
@@ -100,8 +92,10 @@ proc hdlAutoComp {} {
         initAutoComp
     }
     
-    if {$::auto_comp_word != {}} {
-        getNextAutoWord
+    if [ifInWord insert] {
+        if ![ifAutoCompSearchFinished] {
+            getNextAutoWord
+        }
         
         set list_length [llength $::auto_comp_list]
         if [expr ! $list_length] {
