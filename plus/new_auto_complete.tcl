@@ -24,9 +24,9 @@ proc initAutoComp {} {
     }
 }
 
-proc ifAutoCompSearchFinished {} {
+proc ifAutoCompSearchFinished {limit} {
     if {$::auto_comp_pos == {}} {return 1}
-    return [.f.content compare $::auto_comp_pos == $::auto_comp_start]
+    return [.f.content compare $::auto_comp_pos == $limit]
 }
 
 proc getNextAutoWord {} {
@@ -45,7 +45,7 @@ proc getNextAutoWord {} {
         }
     }
     if $duplicate {
-        if ![ifAutoCompSearchFinished] {
+        if ![ifAutoCompSearchFinished $::auto_comp_start] {
             return [getNextAutoWord]
         }
     } else {
@@ -71,7 +71,7 @@ proc hdlAutoComp {} {
     }
     
     if {$::auto_comp_word != {}} {
-        if ![ifAutoCompSearchFinished] {
+        if ![ifAutoCompSearchFinished $::auto_comp_start] {
             getNextAutoWord
         }
         
