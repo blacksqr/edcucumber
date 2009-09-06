@@ -131,7 +131,7 @@ proc getExtraNextWord {} {
     set ::extra_pos [$target search -nolinestop -backwards -regexp $::auto_comp_word $::extra_pos 1.0]
     if {$::extra_pos == {}} { return [getExtraNextWord] }
     while {($::extra_pos != {}) && [$target compare $::extra_pos != [_tool_indexWordHead $target $::extra_pos]]} {
-        set ::extra_pos [$target search -nolinestop -backwards -regexp $::auto_comp_word $::extra_pos]
+        set ::extra_pos [$target search -nolinestop -backwards -regexp $::auto_comp_word $::extra_pos 1.0]
     }
     if {$::extra_pos == {}} { return [getExtraNextWord] }
     
