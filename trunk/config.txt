@@ -5,6 +5,8 @@ package require pngObj
 
 # ?hot::init? : if hot::init from directory verbos
 
+source api&docs/api.tcl
+
 gui
 
 # from directory tcl
@@ -33,10 +35,9 @@ source plus/hi_syntax.tcl
 #source plus/auto_complete.tcl
 source plus/new_auto_complete.tcl
 source plus/search.tcl
-source plus/extra_complete.tcl
 
 # extra auto-complete files
-set extra_files [list ./verbos/test.txt]
+set extra_files [list tcl/tcl-tk.uew]
 initExtraFiles
 
 # something
