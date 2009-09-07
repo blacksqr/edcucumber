@@ -29,6 +29,10 @@ set types {
     {{Text Files}       {.txt}        }
     {{All Files}        *             }
 }
+array set arr_types {}
+foreach i $types {
+    array set arr_types [list [lindex $i 0] [lindex $i 1]]
+}
 
 proc createNewDoc {} {
     if [.f.content edit modified] {
@@ -97,8 +101,8 @@ proc saveDoc {} {
 	if {$filename eq {}} {
 	    return 0
 	}
-        if {($::type != {*}) &&![regexp "\.${::type}$" $filename]} {
-            set filename "${filename}.$::type"
+        if {($::type != {*}) &&![regexp "\.$::arr_types($::type)$" $filename]} {
+            set filename "${filename}.$::arr_types($::type)"
         }
 	set ::current_file $filename
         .f configure -text $filename
@@ -122,8 +126,8 @@ proc saveAsDoc {} {
     if {$filename eq {}} {
 	return
     }
-    if {($::type != {*}) && ![regexp "\.${::type}$" $filename]} {
-        set filename "${filename}.$::type"
+    if {($::type != {*}) && ![regexp "\.$::arr_types($::type)$" $filename]} {
+        set filename "${filename}.$::arr_types($::type)"
     }
     set fid [open "$filename" w]
     puts -nonewline $fid [.f.content get 1.0 "end -1c"]
@@ -139,6 +143,7 @@ proc quitApp {} {
     if [.f.content edit modified] {
         confirm {Save current documnet?} [list if "\[saveDoc\]" "{writeLog; exit}"] {exit}
     } else {
+        writeLog
         exit
     }
 }
@@ -175,12 +180,21 @@ proc confirm {text yes_command no_command} {
 proc writeLog {} {
     set fid [open config.txt r]
     set tmp [open tmp w]
+    if ![eof $fid] {
+	set line [gets $fid]
+        if [regexp {current_file} $line] {
+            puts -nonewline $tmp "set current_file {$::current_file}"
+        } else {
+            puts -nonewline $tmp $line
+        }
+    }
     while {![eof $fid]} {
+	puts -nonewline $tmp "\n"
         set line [gets $fid]
         if [regexp {current_file} $line] {
-            puts $tmp "set current_file {$::current_file}"
+            puts -nonewline $tmp "set current_file {$::current_file}"
         } else {
-            puts $tmp $line
+            puts -nonewline $tmp $line
         }
     }
     close $fid

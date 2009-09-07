@@ -1,4 +1,5 @@
 lappend auto_path ./lib
+
 package require LabelEntry
 package require hot
 package require pngObj
@@ -42,4 +43,4 @@ initExtraFiles
 
 # something
 .f.content edit modified 0
-set current_file {}
+set current_file {D:/s/edcucumber/config.txt}
