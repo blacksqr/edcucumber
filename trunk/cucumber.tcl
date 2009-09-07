@@ -276,18 +276,21 @@ if 1 {
     source config.txt
 
     # open file with start of application
+    if {[llength $argv] > 0} {
+        set ::current_file [lindex $argv 0]
+    }
+    
     if [catch {
-	set ::current_file [lindex $argv 0]
         cd [file dirname $::current_file]
         .f configure -text $::current_file
-	set fid [open $::current_file r]
-	.f.content insert 1.0 [read $fid]
-	close $fid
-	switchHighLightLine
-	incrLinum
-	.f.content edit modified 0
-	set ::old_anchor 1
+        set fid [open $::current_file r]
+        .f.content insert 1.0 [read $fid]
+        close $fid
+        switchHighLightLine
+        incrLinum
+        .f.content edit modified 0
+        set ::old_anchor 1
     }] {
-	.f configure -text {new file}
+        .f configure -text {new file}
     }
 }
