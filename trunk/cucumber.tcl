@@ -279,9 +279,8 @@ if 1 {
     if {[llength $argv] > 0} {
         set ::current_file [lindex $argv 0]
     }
-    
+    # cd [file dirname $::current_file]
     if [catch {
-        cd [file dirname $::current_file]
         .f configure -text $::current_file
         set fid [open $::current_file r]
         .f.content insert 1.0 [read $fid]
@@ -292,5 +291,6 @@ if 1 {
         set ::old_anchor 1
     }] {
         .f configure -text {new file}
+        set current_file {}
     }
 }
