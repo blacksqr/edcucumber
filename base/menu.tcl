@@ -21,6 +21,7 @@ proc menuData {} {
 menuTool::init [menuData]
 . configure -menu .mu
 wm protocol . WM_DELETE_WINDOW quitApp
+set type {}
 
 set current_file {}
 set types {
@@ -90,12 +91,15 @@ proc saveDoc {} {
 	return 0
     }
     
-    if {$::current_file eq {} || $::current_file eq {shell}} {
+    if {$::current_file eq {}} { ;#  || $::current_file eq {shell}
         set filename {}
-	set filename [tk_getSaveFile -filetypes $::types]
+	set filename [tk_getSaveFile -filetypes $::types -typevariable ::type]
 	if {$filename eq {}} {
 	    return 0
 	}
+        if {($::type != {*}) &&![regexp "\.${::type}$" $filename]} {
+            set filename "${filename}.$::type"
+        }
 	set ::current_file $filename
         .f configure -text $filename
     } else {
@@ -114,18 +118,26 @@ proc saveDoc {} {
 }
 
 proc saveAsDoc {} {
-    set filename [tk_getSaveFile -filetypes $::types]
+    set filename [tk_getSaveFile -filetypes $::types -typevariable ::type]
     if {$filename eq {}} {
 	return
     }
-    set fid [open $filename w]
+    if {($::type != {*}) && ![regexp "\.${::type}$" $filename]} {
+        set filename "${filename}.$::type"
+    }
+    set fid [open "$filename" w]
     puts -nonewline $fid [.f.content get 1.0 "end -1c"]
     close $fid
+    
+    if {$::current_file eq {}} {
+        set ::current_file $filename
+        .f configure -text $filename
+    }
 }
 
 proc quitApp {} {
     if [.f.content edit modified] {
-        confirm {Save current documnet?} [list if "\[saveDoc\]" "{exit}"] {exit}
+        confirm {Save current documnet?} [list if "\[saveDoc\]" "{writeLog; exit}"] {exit}
     } else {
         exit
     }
@@ -158,4 +170,22 @@ proc confirm {text yes_command no_command} {
     tkwait visibility .cf
     grab .cf
     wm attributes .cf -toolwindow 1
+}
+
+proc writeLog {} {
+    set fid [open config.txt r]
+    set tmp [open tmp w]
+    while {![eof $fid]} {
+        set line [gets $fid]
+        if [regexp {current_file} $line] {
+            puts $tmp "set current_file {$::current_file}"
+        } else {
+            puts $tmp $line
+        }
+    }
+    close $fid
+    close $tmp
+    
+    file delete config.txt
+    file rename tmp config.txt
 }
