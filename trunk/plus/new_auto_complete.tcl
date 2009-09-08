@@ -22,31 +22,30 @@ set auto_comp_list_id 0
 bind .f.content <Alt-/> {+ hdlAutoComp %W}
 
 proc initAutoComp {} {
-    if [ifInWord insert] {
+    #if [ifInWord insert] {
         set ::auto_comp_start [indexWordHead insert]
         set ::auto_comp_end   [.f.content index insert]
         set ::auto_comp_pos   [.f.content index "$::auto_comp_start -1c"]
         set ::auto_comp_word  [.f.content get $::auto_comp_start $::auto_comp_end]
         set ::auto_comp_list  [list $::auto_comp_word]
         set ::auto_comp_list_id 0
-    } else {
-        set ::auto_comp_start {}
-        set ::auto_comp_end   {}
-        set ::auto_comp_pos   {}
-        set ::auto_comp_list  {}
-        set ::auto_comp_list_id 0
-        set ::auto_comp_word  {}
-    }
+    #} else {
+       # set ::auto_comp_start {}
+       # set ::auto_comp_end   {}
+       # set ::auto_comp_pos   {}
+       # set ::auto_comp_list  {}
+       # set ::auto_comp_list_id 0
+       # set ::auto_comp_word  {}
+    #}
 }
 
-proc ifAutoCompSearchFinished {limit} {
+proc ifAutoCompSearchFinished {} {
     if {$::auto_comp_pos == {}} {return 1}
-    return [.f.content compare $::auto_comp_pos == $limit]
+    return [.f.content compare $::auto_comp_pos == $::auto_comp_start]
 }
 
 proc getNextAutoWord {} {
-    set old_pos $::auto_comp_pos
-    set ::auto_comp_pos [.f.content search -nolinestop -backwards -regexp $::auto_comp_word $old_pos]
+    set ::auto_comp_pos [.f.content search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
     while {[.f.content compare $::auto_comp_pos != [indexWordHead $::auto_comp_pos]]} {
         set ::auto_comp_pos [.f.content search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
     }
@@ -60,7 +59,7 @@ proc getNextAutoWord {} {
         }
     }
     if $duplicate {
-        if ![ifAutoCompSearchFinished $::auto_comp_start] {
+        if ![ifAutoCompSearchFinished] {
             return [getNextAutoWord]
         }
     } else {
@@ -78,16 +77,17 @@ proc _hi {} {
 }
 
 proc hdlAutoComp {evt_widget} {
-    if {($::auto_comp_end == {}) \
+    if {(($::auto_comp_end == {}) \
             || [.f.content compare $::auto_comp_end != insert] \
-            || ![regexp "^$::auto_comp_word" [.f.content get $::auto_comp_start $::auto_comp_end]]} {
+            || ![regexp "^$::auto_comp_word" [.f.content get $::auto_comp_start $::auto_comp_end]]) && [ifInWord insert]} {
                 initAutoComp
                 set widget_index [lsearch $::search_targets $evt_widget]
                 set ::extra_targets [lreplace $::search_targets $widget_index $widget_index]
+                set ::extra_pos end
             }
-    
-    if {$::auto_comp_word != {}} {
-        if ![ifAutoCompSearchFinished $::auto_comp_start] {
+    # set ::extra_pos end
+    if [ifInWord insert] {
+        if ![ifAutoCompSearchFinished] {
             getNextAutoWord
         } else {
             getExtraNextWord
