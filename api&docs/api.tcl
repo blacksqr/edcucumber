@@ -189,30 +189,34 @@ proc _hdl_move_deleteWord {cucumber} {
     return -code break
 }
 
-proc _hdl_plus_autoComplete {cucumber search_path} {
-    if {($::auto_comp_end == {}) \
+proc _hdl_plus_autoComplete {cucumber} {
+    if {(($::auto_comp_end == {}) \
             || [$cucumber compare $::auto_comp_end != insert] \
-            || ![regexp "^$::auto_comp_word" [$cucumber get $::auto_comp_start $::auto_comp_end]]} {
-                _tool_initAutoComp
+            || ![regexp "^$::auto_comp_word" [$cucumber get $::auto_comp_start $::auto_comp_end]]) && [_tool_ifInWord $cucumber insert]} {
+                _tool_autoComp_init
+                set widget_index [lsearch $::search_targets $evt_widget]
+                set ::extra_targets [lreplace $::search_targets $widget_index $widget_index]
+                set ::extra_pos end
             }
-    
-    if {$::auto_comp_word != {}} {
-        if ![_tool_autoComp_ifSearchFinished $cucumber] {
-            _tool_autoComp_getNextWord $cucumber
+    # set ::extra_pos end
+    if [_tool_ifInWord $cucumber insert] {
+        if ![_tool_autoComp_ifSearchFinished] {
+            _tool_autoComp_getNextWord
+        } else {
+            _tool_autoComp_getNextExtraWord
         }
         
         set list_length [llength $::auto_comp_list]
         if [expr ! $list_length] {
             return
-        }
-        
+        }        
         incr ::auto_comp_list_id
         if {$::auto_comp_list_id >= $list_length} {
             set ::auto_comp_list_id 0
         }
         $cucumber replace $::auto_comp_start $::auto_comp_end [lindex $::auto_comp_list $::auto_comp_list_id]
         after idle [list set ::auto_comp_end [$cucumber index insert]]
-        _tool_hi $cucumber
+        _tool_hi
     }
 }
 
@@ -335,24 +339,22 @@ proc _tool_indexWordEnd {cucumber id} {
     }
 }
 
-proc _tool_autoComp_init {cucumber} {
-    if [_tool_ifInWord $cucumber insert] {
-        if [ifInWord insert] {
-            set ::auto_comp_start [_tool_indexWordHead insert]
-            set ::auto_comp_end   [$cucumber index insert]
-            set ::auto_comp_pos   [$cucumber index "$::auto_comp_start -1c"]
-            set ::auto_comp_word  [$cucumber get $::auto_comp_start $::auto_comp_end]
-            set ::auto_comp_list  [list $::auto_comp_word]
-        } else {
-            set ::auto_comp_start {}
-            set ::auto_comp_end   {}
-            set ::auto_comp_pos   {}
-            set ::auto_comp_list  {}
-            set ::auto_comp_word  {}
-        }
-        set ::auto_comp_list_id 0
-        set ::auto_comp_target_id 0
+proc _tool_autoComp_loadFiles {file_names} {
+    text .loadedfiles
+    foreach f $file_names {
+        set fd [open $f r]
+        .loadedfiles insert end [read $fd]
+        close $fd
     }
+}
+
+proc _tool_autoComp_init {cucumber} {
+    set ::auto_comp_start [_tool_indexWordHead insert]
+    set ::auto_comp_end   [$cucumber index insert]
+    set ::auto_comp_pos   [$cucumber index "$::auto_comp_start -1c"]
+    set ::auto_comp_word  [$cucumber get $::auto_comp_start $::auto_comp_end]
+    set ::auto_comp_list  [list $::auto_comp_word]
+    set ::auto_comp_list_id 0
 }
 
 proc _tool_autoComp_ifSearchFinished {cucumber} {
@@ -361,8 +363,7 @@ proc _tool_autoComp_ifSearchFinished {cucumber} {
 }
 
 proc _tool_autoComp_getNextWord {cucumber} {
-    set old_pos $::auto_comp_pos
-    set ::auto_comp_pos [$cucumber search -nolinestop -backwards -regexp $::auto_comp_word $old_pos]
+    set ::auto_comp_pos [$cucumber search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
     while {[$cucumber compare $::auto_comp_pos != [_tool_indexWordHead $::auto_comp_pos]]} {
         set ::auto_comp_pos [$cucumber search -nolinestop -backwards -regexp $::auto_comp_word $::auto_comp_pos]
     }
@@ -385,5 +386,49 @@ proc _tool_autoComp_getNextWord {cucumber} {
 }
 
 proc _tool_hi {cucumber} {
+    if ![catch {info args _tool_hi_line}] {
+        _tool_hi_switchHighlightLine $cucumber
+    }
+    if ![catch {info args _tool_hi_word}] {
+        _tool_hi_word $cucumber
+    }
+}
+
+proc _tool_autoComp_ifExtraFinished {} {
+    return ![llength $::extra_targets]
+}
+
+proc _tool_autoComp_ifExtraPosInvalid {} {
+    return [expr {$::extra_pos == {1.0} || $::extra_pos == {}}]
+}
+
+proc _tool_autoComp_getNextExtraWord {} {
+    if [_tool_autoComp_ifExtraFinished] {return 0}
     
+    if [_tool_autoComp_ifExtraPosInvalid] {
+        set ::extra_targets [lreplace $::extra_targets 0 0]
+        set ::extra_pos end
+        return [_tool_autoComp_getNextExtraWord]
+    }
+    
+    set target [lindex $::extra_targets 0]
+    set ::extra_pos [$target search -nolinestop -backwards -regexp $::auto_comp_word $::extra_pos 1.0]
+    while {($::extra_pos != {}) && [$target compare $::extra_pos != [_tool_indexWordHead $target $::extra_pos]]} {
+        set ::extra_pos [$target search -nolinestop -backwards -regexp $::auto_comp_word $::extra_pos 1.0]
+    }
+    if {$::extra_pos == {}} {return [_tool_autoComp_getNextExtraWord]}
+    
+    set word [$target get $::extra_pos "$::extra_pos wordend"]
+    set duplicate 0
+    foreach w $::auto_comp_list {
+        if {$w == $word} {
+            set duplicate 1
+            break
+        }
+    }
+    if $duplicate {
+        return [_tool_autoComp_getNextExtraWord]
+    } else {
+        lappend ::auto_comp_list $word
+    }
 }
