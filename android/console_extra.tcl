@@ -8,7 +8,18 @@ proc _main {} {
     pack .ex_con.sb -side right -fill y
 
     .ex_con.text tag configure head_tag -foreground red
-
+    .f.content tag configure leave -background #808080
+    
+    bind .ex_con.text <Escape> {focus .f.content; .f.content tag remove leave 1.0 end}
+    bind .f.content <Escape> {
+	focus .ex_con.text
+	if [.f.content compare {insert +1c} <= {insert lineend}] {
+	    .f.content tag add leave insert {insert + 1c}
+	} else {
+	    .f.content tag add leave insert {insert lineend}
+	}
+    }
+    
     proc _init_con {} {
         catch {interp delete con}
         interp create con
@@ -19,6 +30,70 @@ proc _main {} {
             }
         }
         interp alias con exit {} quitApp
+        
+        foreach item {
+            {cc <Control-c>}
+            {cx <Control-x>}
+            {cv <Control-v>}
+            {cz <Control-z>}
+            {cw <Control-w>}
+            {aw <Alt-w>}
+            {cy <Control-y>}
+            {ca <Control-a>}
+            {ce <Control-e>}
+            {ab <Alt-b>}
+            {af <Alt-f>}
+            {a< <Alt-<>}
+            {a> <Alt-greater>}
+            {am <Alt-m>}
+            {cl <Control-l>}
+            {al <Alt-l>}
+            {a/ <Alt-/>}
+        } {
+            set name [lindex $item 0]
+            set command [evtGenerator [lindex $item 1]]
+            eval "
+            proc $name {} {
+                focus .f.content
+                $command
+                .f.content tag remove leave 1.0 end
+                if \[.f.content compare insert != {insert lineend}\] {
+                    .f.content tag add leave insert {insert +1c}
+                } elseif \[.f.content compare insert != {insert linestart}\] {
+                    .f.content tag add leave {insert -1c} insert
+                }
+                focus .ex_con.text
+            }
+            "
+            interp alias con $name {} $name
+        }
+        
+        proc setSearchWord {w} {set ::searchWord $w}
+        interp alias con s {} setSearchWord
+
+        proc _moveToPrevLine {{n 1}} {while {$n > 0} {eval [evtGenerator <Up>];incr n -1}}
+        proc _moveToNextLine {{n 1}} {while {$n > 0} {eval [evtGenerator <Down>];incr n -1}}
+        proc _moveToPrevChar {{n 1}} {while {$n > 0} {eval [evtGenerator <Left>];incr n -1}}
+        proc _moveToNextChar {{n 1}} {while {$n > 0} {eval [evtGenerator <Right>];incr n -1}}
+        foreach p {moveToPrevLine moveToNextLine moveToPrevChar moveToNextChar} {
+            eval "
+            proc $p {{n 1}} {
+                focus .f.content
+                _$p \$n
+                .f.content tag remove leave 1.0 end
+                if \[.f.content compare insert != {insert lineend}\] {
+                    .f.content tag add leave insert {insert +1c}
+                } elseif \[.f.content compare insert != {insert linestart}\] {
+                    .f.content tag add leave {insert -1c} insert
+                }
+                focus .ex_con.text
+            }
+"
+        }
+        interp alias con i {} moveToPrevLine
+        interp alias con j {} moveToPrevChar
+        interp alias con k {} moveToNextLine
+        interp alias con l {} moveToNextChar
     }
     _init_con
 

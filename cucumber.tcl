@@ -289,6 +289,7 @@ if 1 {
         incrLinum
         .f.content edit modified 0
         set ::old_anchor 1
+	.f.content mark set insert 1.0
     }] {
         .f configure -text {new file}
         set current_file {}

@@ -13,7 +13,7 @@ if 0 {
     .f.content insert end $prompt
 }
 
-proc _hi {} {
+proc s_hi {} {
     .f.content mark set insert end
     .f.content see insert
     
@@ -42,7 +42,7 @@ proc _shell {} {
     proc runCmd {} {
         _runCmd
         
-        _hi
+        s_hi
         
         .f.content edit modified 0
         
@@ -63,7 +63,7 @@ proc _runCmd {} {
     if [regexp {^cd .*} $cmd] {
         if [catch {cd [string range $cmd 3 [string length $cmd]]}] {
             .f.content insert end "\n$::prompt"
-            _hi
+            s_hi
             return
         } else {
             set ::prompt "[pwd]>"
@@ -86,7 +86,7 @@ proc readFd {fd} {
         .f.content insert end "\n[string trim [gets $fd]]"
     }
     
-    _hi
+    s_hi
 }
 
 #----------------------------------------------#
@@ -107,5 +107,5 @@ bind .f.content <Control-c><Control-c> {
         close $pid
     }
     .f.content insert end "\n$::prompt"
-    _hi
+    s_hi
 }
