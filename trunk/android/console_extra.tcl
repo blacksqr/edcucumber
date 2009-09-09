@@ -18,6 +18,7 @@ proc _main {} {
                 return $args
             }
         }
+        interp alias con exit {} quitApp
     }
     _init_con
 
