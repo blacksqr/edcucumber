@@ -53,7 +53,7 @@ proc menuData {} {
 
 bind . <Control-n> createNewDoc
 bind . <Control-o> operation
-bind . <Control-s> saveAsDoc
+bind . <Control-s> saveDoc
 bind . <Control-q> quitApp
 
 menuTool::init [menuData]
@@ -126,6 +126,7 @@ proc _openDoc {} {
 
     .f.content edit modified 0
     set ::old_anchor 1
+    .f.content mark set insert 1.0
 }
 
 proc saveDoc {} {
