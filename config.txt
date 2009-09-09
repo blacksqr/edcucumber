@@ -43,4 +43,4 @@ initExtraFiles
 
 # something
 .f.content edit modified 0
-set current_file {D:/s/tcl/edcucumber/android/console_extra.tcl}
+set current_file {D:\s\tcl\edcucumber\android\console_extra.tcl}

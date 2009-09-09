@@ -94,6 +94,11 @@ proc _main {} {
         interp alias con j {} moveToPrevChar
         interp alias con k {} moveToNextLine
         interp alias con l {} moveToNextChar
+        
+        bind .ex_con.text <Control-i> {moveToPrevLine; break}
+        bind .ex_con.text <Control-j> moveToPrevChar
+        bind .ex_con.text <Control-k> moveToNextLine
+        bind .ex_con.text <Control-l> moveToNextChar
     }
     _init_con
 
