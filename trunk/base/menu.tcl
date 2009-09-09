@@ -1,22 +1,60 @@
 package require menuTool
 
-proc menuData {} {
-    return {
-	{file File {
-	    {New    n  0 {} createNewDoc}
-	    {Open   o  0 {} openDoc}
-	    {Save   s  0 {} saveDoc}
-	    {SaveAs {} 1 {} saveAsDoc}
-	    {}
-	    {Quit   q  0 {} quitApp}
-	}}
-        {operation Operation {
-            {Replace {} 0 {} replaceWord}
-            {}
-            {Shell {} 0 {} shell}
-        }}
-    }
+#----------------------------#
+
+proc evtGenerator {evt} {
+    return "event generate .f.content $evt"
 }
+event add <<Popup-Menu>> <Button-2> <Button-3>
+bind .f.content <<Popup-Menu>> {tk_popup .popupmenu %X %Y}
+menu .popupmenu -tearoff 0
+
+set popup_items [list \
+                     [list Copy  C-c 0 {} [evtGenerator <Control-c>]] \
+                     [list Cut   C-x 1 {} [evtGenerator <Control-x>]] \
+                     [list Paste C-v 0 {} [evtGenerator <Control-v>]] \
+                     [list Undo  C-z 0 {} [evtGenerator <Control-z>]] \
+                     [list ] \
+                     [list {Local Cut}   C-w {} {} [evtGenerator <Control-w>]] \
+                     [list {Local Copy}  A-w {} {} [evtGenerator <Alt-w>]] \
+                     [list {Local Paste} C-y {} {} [evtGenerator <Control-y>]] \
+                     [list ] \
+                     [list {Line Head} C-a {} {} [evtGenerator <Control-a>]] \
+                     [list {Line End}  C-e {} {} [evtGenerator <Control-e>]] \
+                     [list {Word Prev} A-b {} {} [evtGenerator <Alt-b>]] \
+                     [list {Word Next} A-f {} {} [evtGenerator <Alt-f>]] \
+                     [list {Doc Head} {A-<} {} {} [evtGenerator <Alt-<>]] \
+                     [list {Doc End}  "A->" {} {} [evtGenerator <Alt-greater>]] \
+                     [list {Content head} A-m {} {} [evtGenerator <Alt-m>]] \
+                     [list ] \
+                     [list {Search forwards}  C-l 0 {} [evtGenerator <Control-l>]] \
+                     [list {Search backwards} A-l 0 {} [evtGenerator <Alt-l>]] \
+                     [list ] \
+                     [list {Auto Complete} "A-/" 0 {} [evtGenerator <Alt-/>]] \
+                    ]
+
+foreach item $popup_items {
+    menuTool::produce .popupmenu $item
+}
+
+#----------------------------#
+
+proc menuData {} {
+    return "{file File {
+        {New    C-n  0 {} createNewDoc}
+        {Open   C-o  0 {} openDoc}
+        {Save   C-s  0 {} saveDoc}
+        {SaveAs {} 1 {} saveAsDoc}
+        {}
+        {Quit   C-q  0 {} quitApp}
+    }} 
+    {operation Operation {[concat $::popup_items {{Replace {} 0 {} replaceWord} {} {Shell {} 0 {} shell}}]}}"
+}
+
+bind . <Control-n> createNewDoc
+bind . <Control-o> operation
+bind . <Control-s> saveAsDoc
+bind . <Control-q> quitApp
 
 menuTool::init [menuData]
 . configure -menu .mu
