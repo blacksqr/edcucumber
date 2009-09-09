@@ -108,8 +108,11 @@ proc _openDoc {} {
     if {$::current_file eq {shell}} {
         proc runCmd {} {}
     }
-    
-    set filename [tk_getOpenFile -filetypes $::types]
+    if {$::current_file != {}} {
+        set filename [tk_getOpenFile -filetypes $::types -initialdir [file dirname $::current_file]]
+    } else {
+        set filename [tk_getOpenFile -filetypes $::types]
+    }
     if {$filename eq {}} {
 	return
     }
@@ -161,7 +164,11 @@ proc saveDoc {} {
 }
 
 proc saveAsDoc {} {
-    set filename [tk_getSaveFile -filetypes $::types -typevariable ::type]
+    if {$::current_file != {}} {
+        set filename [tk_getSaveFile -filetypes $::types -typevariable ::type -initialdir [file dirname $::current_file]]
+    } else {
+        set filename [tk_getSaveFile -filetypes $::types -typevariable ::type]
+    }
     if {$filename eq {}} {
 	return
     }
