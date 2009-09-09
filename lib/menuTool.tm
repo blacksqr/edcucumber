@@ -26,12 +26,17 @@ proc ::menuTool::produce {path item} {
     foreach {label accel under image comm} $item {}
     
     $path add command -label [format "%-15s" $label] \
-    	-command $comm -underline $under \
+    	-command $comm \
 	-image [pngObj::produce $image] -compound left
+	# -underline $under \
 
     if {$accel ne {}} {
         $path entryconfigure [format "%-15s" $label] \
-	    -accelerat "(C-$accel)"
-	bind . <Control-$accel> $comm
+	    -accelerat "$accel"
+    }
+
+    if {$under ne {}} {
+       $path entryconfigure [format "%-15s" $label] \
+       	     -underline $under
     }
 }
