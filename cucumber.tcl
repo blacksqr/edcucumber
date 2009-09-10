@@ -55,6 +55,7 @@ proc bindDefaultEvents {} {
         {<Alt-w>     hdlCopy}
 	{<Control-w> hdlCut}
 	{<Control-y> hdlPaste}
+        {<Alt-z>     hdlRedo}
     } {
         foreach {e h} $eh {}
         # bind .f.content $e "+ after idle $h"
@@ -66,6 +67,7 @@ proc bindDefaultEvents {} {
 	<Control-y>
 	<Control-v>
 	<Control-z>
+        <Alt-z>
     } {
 	bind .f.content $e {+ after idle incrLinum} 
     }
@@ -76,6 +78,7 @@ proc bindDefaultEvents {} {
 	<Control-x>
 	<Control-z>
 	<Control-k>
+        <Alt-z>
     } {
 	bind .f.content $e {+ after idle decrLinum}
     }
@@ -92,6 +95,10 @@ proc bindDefaultEvents {} {
 
 #-------------------------------------------------------#
 # HDL
+
+proc hdlRedo {} {
+    catch {.f.content edit redo}
+}
 
 proc hdlPaste {} {
     if {$::buffer eq {}} {return}

@@ -22,6 +22,7 @@ proc _main {} {
     bind .f.content <FocusIn> { .f.content tag remove leave 1.0 end }
     
     proc modGenerator {name command default} {
+
         return "
         proc $name {{n $default}} {
             focus .f.content
@@ -48,7 +49,6 @@ proc _main {} {
                 return $args
             }
         }
-        interp alias con exit {} quitApp
         
         foreach item {
             {c@ <Control-@>}
@@ -74,10 +74,14 @@ proc _main {} {
             {co <Control-o>}
             {ck <Control-k>}
             {cq <Control-q>}
+            {c< <Control-BackSpace>}
+            {c> <Control-Delete>}
+            {az <Alt-z>}
             {i <Up>}
             {j <Left>}
             {k <Down>}
             {l <Right>}
+            {q <Tab>}
         } {
             set name [lindex $item 0]
             eval [modGenerator $name "while {\$n > 0} {[evtGenerator [lindex $item 1]]; incr n -1}" 1]
@@ -85,13 +89,6 @@ proc _main {} {
         }
         
         proc setSearchWord {w} {set ::searchWord $w}
-        interp alias con s {} setSearchWord
-        
-        bind .ex_con.text <Control-i> {i; break}
-        bind .ex_con.text <Control-j> j
-        bind .ex_con.text <Control-k> k
-        bind .ex_con.text <Control-l> l
-        
         set cmd {
             if {$n == "\n"} {
                 eval [evtGenerator <Return>]
@@ -100,7 +97,15 @@ proc _main {} {
             }
         }
         eval [modGenerator writeContent $cmd {\n}]
+        interp alias con s {} setSearchWord
+        interp alias con exit {} quitApp
         interp alias con w {} writeContent
+
+        bind .ex_con.text <Control-i> {i; break}
+        bind .ex_con.text <Control-j> j
+        bind .ex_con.text <Control-k> k
+        bind .ex_con.text <Control-l> l
+        bind .ex_con.text <`> {event generate .ex_con.text <Return>; break}
     }
     _init_con
 
