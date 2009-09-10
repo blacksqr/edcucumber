@@ -14,6 +14,7 @@ set popup_items [list \
                      [list Cut   C-x 1 {} [evtGenerator <Control-x>]] \
                      [list Paste C-v 0 {} [evtGenerator <Control-v>]] \
                      [list Undo  C-z 0 {} [evtGenerator <Control-z>]] \
+                     [list Redo  A-z 0 {} [evtGenerator <Alt-z>]] \
                      [list ] \
                      [list {Local Cut}   C-w {} {} [evtGenerator <Control-w>]] \
                      [list {Local Copy}  A-w {} {} [evtGenerator <Alt-w>]] \
@@ -52,7 +53,7 @@ proc menuData {} {
 }
 
 bind . <Control-n> createNewDoc
-bind . <Control-o> operation
+bind . <Control-o> openDoc
 bind . <Control-s> saveDoc
 bind . <Control-q> quitApp
 
