@@ -10,14 +10,33 @@ proc _main {} {
     .ex_con.text tag configure head_tag -foreground red
     .f.content tag configure leave -background #808080
     
-    bind .ex_con.text <Escape> {focus .f.content; .f.content tag remove leave 1.0 end}
-    bind .f.content <Escape> {
-	focus .ex_con.text
-	if [.f.content compare {insert +1c} <= {insert lineend}] {
+    bind .ex_con.text <Escape> { focus .f.content }
+    bind .f.content <Escape> { focus .ex_con.text }
+    bind .f.content <FocusOut> {
+        if [.f.content compare {insert +1c} <= {insert lineend}] {
 	    .f.content tag add leave insert {insert + 1c}
 	} else {
 	    .f.content tag add leave insert {insert lineend}
 	}
+    }
+    bind .f.content <FocusIn> { .f.content tag remove leave 1.0 end }
+    
+    proc modGenerator {name command default} {
+        return "
+        proc $name {{n $default}} {
+            focus .f.content
+            $command
+            .f.content tag remove leave 1.0 end
+            after idle {
+                if \[.f.content compare insert != {insert lineend}\] {
+                    .f.content tag add leave insert {insert +1c}
+                } elseif \[.f.content compare insert != {insert linestart}\] {
+                    .f.content tag add leave {insert -1c} insert
+                }
+            }
+            focus .ex_con.text
+        }
+        "
     }
     
     proc _init_con {} {
@@ -32,6 +51,7 @@ proc _main {} {
         interp alias con exit {} quitApp
         
         foreach item {
+            {c@ <Control-@>}
             {cc <Control-c>}
             {cx <Control-x>}
             {cv <Control-v>}
@@ -49,56 +69,38 @@ proc _main {} {
             {cl <Control-l>}
             {al <Alt-l>}
             {a/ <Alt-/>}
+            {cn <Control-n>}
+            {cs <Control-s>}
+            {co <Control-o>}
+            {ck <Control-k>}
+            {cq <Control-q>}
+            {i <Up>}
+            {j <Left>}
+            {k <Down>}
+            {l <Right>}
         } {
             set name [lindex $item 0]
-            set command [evtGenerator [lindex $item 1]]
-            eval "
-            proc $name {} {
-                focus .f.content
-                $command
-                .f.content tag remove leave 1.0 end
-                if \[.f.content compare insert != {insert lineend}\] {
-                    .f.content tag add leave insert {insert +1c}
-                } elseif \[.f.content compare insert != {insert linestart}\] {
-                    .f.content tag add leave {insert -1c} insert
-                }
-                focus .ex_con.text
-            }
-            "
+            eval [modGenerator $name "while {\$n > 0} {[evtGenerator [lindex $item 1]]; incr n -1}" 1]
             interp alias con $name {} $name
         }
         
         proc setSearchWord {w} {set ::searchWord $w}
         interp alias con s {} setSearchWord
-
-        proc _moveToPrevLine {{n 1}} {while {$n > 0} {eval [evtGenerator <Up>];incr n -1}}
-        proc _moveToNextLine {{n 1}} {while {$n > 0} {eval [evtGenerator <Down>];incr n -1}}
-        proc _moveToPrevChar {{n 1}} {while {$n > 0} {eval [evtGenerator <Left>];incr n -1}}
-        proc _moveToNextChar {{n 1}} {while {$n > 0} {eval [evtGenerator <Right>];incr n -1}}
-        foreach p {moveToPrevLine moveToNextLine moveToPrevChar moveToNextChar} {
-            eval "
-            proc $p {{n 1}} {
-                focus .f.content
-                _$p \$n
-                .f.content tag remove leave 1.0 end
-                if \[.f.content compare insert != {insert lineend}\] {
-                    .f.content tag add leave insert {insert +1c}
-                } elseif \[.f.content compare insert != {insert linestart}\] {
-                    .f.content tag add leave {insert -1c} insert
-                }
-                focus .ex_con.text
-            }
-"
-        }
-        interp alias con i {} moveToPrevLine
-        interp alias con j {} moveToPrevChar
-        interp alias con k {} moveToNextLine
-        interp alias con l {} moveToNextChar
         
-        bind .ex_con.text <Control-i> {moveToPrevLine; break}
-        bind .ex_con.text <Control-j> moveToPrevChar
-        bind .ex_con.text <Control-k> moveToNextLine
-        bind .ex_con.text <Control-l> moveToNextChar
+        bind .ex_con.text <Control-i> {i; break}
+        bind .ex_con.text <Control-j> j
+        bind .ex_con.text <Control-k> k
+        bind .ex_con.text <Control-l> l
+        
+        set cmd {
+            if {$n == "\n"} {
+                eval [evtGenerator <Return>]
+            } else {
+                .f.content insert insert $n; .f.content see insert; 
+            }
+        }
+        eval [modGenerator writeContent $cmd {\n}]
+        interp alias con w {} writeContent
     }
     _init_con
 
