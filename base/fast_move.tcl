@@ -18,7 +18,7 @@ proc fastMoveEvents {} {
 	{<Alt-m>       hdlMoveToContentHead}
         
         {<Control-BackSpace> hdlBackSpaceWord}
-        {<Control-Delete> hdlDeletWord}
+        {<Control-Delete> hdlDeleteWord}
     }
 }
 
@@ -51,7 +51,8 @@ proc hdlMoveToPreviousWord {} {
         }
         incr bw
     }
-    after idle ".f.content mark set insert \"insert - $bw c wordstart\"; .f.content see insert"
+    # after idle ".f.content mark set insert \"insert - $bw c wordstart\"; .f.content see insert"
+    .f.content mark set insert "insert - $bw c wordstart"; .f.content see insert
 }
 
 proc hdlMoveToNextWord {} {
@@ -59,35 +60,41 @@ proc hdlMoveToNextWord {} {
     if [.f.content compare insert == {end - 1c}] {return}
     set start [.f.content search -forwards -regexp -nolinestop -count span {\w+\W} insert {end - 1c}]
     if {$span ne {}} {
-        after idle ".f.content mark set insert \"$start + $span c - 1 c\"; .f.content see insert"
+        # after idle ".f.content mark set insert \"$start + $span c - 1 c\"; .f.content see insert"
+        .f.content mark set insert "$start + $span c - 1 c"; .f.content see insert
     }
+    return -code break
 }
 
 proc hdlMoveToDocHead {} {
-    after idle {
+    #after idle {
 	.f.content mark set insert 1.0
 	.f.content see insert
-    }
+    #}
 }
 
 proc hdlMoveToDocEnd {} {
-    after idle {
+    #after idle {
 	.f.content mark set insert {end - 1c}
 	.f.content see insert
-    }
+    #}
 }
 
 proc hdlBackSpaceWord {} {
     set old [.f.content index insert]
     hdlMoveToPreviousWord
-    after idle [list _dd insert $old]
+    #after idle [list 
+                 _dd insert $old
+                 #]
     return -code break
 }
 
-proc hdlDeletWord {} {
+proc hdlDeleteWord {} {
     set old [.f.content index insert]
-    hdlMoveToNextWord
-    after idle [list _dd $old insert]
+    catch {hdlMoveToNextWord}
+    # after idle [list
+                  _dd $old insert
+                  #]
     return -code break
 }
 

@@ -57,7 +57,8 @@ proc bindDefaultEvents {} {
 	{<Control-y> hdlPaste}
     } {
         foreach {e h} $eh {}
-        bind .f.content $e "+ after idle $h"
+        # bind .f.content $e "+ after idle $h"
+        bind .f.content $e "+ $h"
     }
 
     foreach e {
