@@ -195,8 +195,9 @@ proc _verify_con_buffer {} {
     set i 0
     foreach c $cmd {
         regsub {([a-z]+)([0-9]+)} $c {\1 \2} c
-        regsub {^w(.*)} $c {w \1} c
+        regsub {^w(.+)} $c {w {\1}} c
         regsub {^s(.+)} $c {s \1} c
+        regsub -all {\\s} $c { } c
         lset cmd $i $c
         incr i
     }
