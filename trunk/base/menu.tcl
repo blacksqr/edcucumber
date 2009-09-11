@@ -188,7 +188,7 @@ proc saveAsDoc {} {
 
 proc quitApp {} {
     if [.f.content edit modified] {
-        confirm {Save current documnet?} [list if "\[saveDoc\]" "{writeLog; exit}"] {exit}
+        confirm {Save current documnet?} [list if "\[saveDoc\]" {writeLog; exit}] {exit}
     } else {
         writeLog
         exit
