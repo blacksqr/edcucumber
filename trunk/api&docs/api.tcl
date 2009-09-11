@@ -10,7 +10,6 @@ set auto_comp_end   {}
 set auto_comp_pos   {}
 set auto_comp_list  {}
 set auto_comp_list_id 0
-set auto_comp_target_id 0
 
 #----------------------------------------#
 
@@ -27,6 +26,7 @@ proc _data_defaultEvents {cucumber line_number_column info_label} {
         [list <Control-x> [list [list _tool_decrLinum $line_number_column]]]
         [list <Control-y> [list [list _hdl_default_paste $cucumber] [list _tool_incrLinum $line_number_column]]]
         [list <Control-z> [list [list _tool_incrLinum $line_number_column] [list _tool_decrLinum $line_number_column]]]
+        [list <Alt-z>     [list [list _hdl_defaut_redo $cucumber] [list _tool_incrLinum $line_number_column] [list _tool_decrLinum $line_number_column]]]
     }
 }
 
@@ -80,6 +80,10 @@ proc _bind_plusEvents {cucumber} {
 
 #----------------------------------------#
 
+proc _hdl_defaut_redo {cucumber} {
+    catch {$cucumber edit redo}
+}
+
 proc _hdl_default_paste {cucumber} {
     if {$::buffer eq {}} {
 	return
@@ -129,12 +133,12 @@ proc _hdl_default_mark {cucumber info_label} {
 }
 
 proc _hdl_move_toContentHead {cucumber} {
-    set id [$cucumber search -regexp {\S} {insert linestart} {insert lineend}]
-    if {$id != {}} {
-        $cucumber mark set insert $id
+    set h [_tool_indexLineContentHead $cucumber]
+    if $h {
+        $cucumber mark set insert $h
         $cucumber see insert
     }
-    return -code break
+    return -code break    
 }
 
 proc _hdl_move_toLineStart {cucumber} {
@@ -218,6 +222,10 @@ proc _hdl_plus_autoComplete {cucumber} {
         after idle [list set ::auto_comp_end [$cucumber index insert]]
         _tool_hi
     }
+}
+
+proc _hdl_autoIndent {cucumber} {
+    
 }
 
 #----------------------------------------#
@@ -431,4 +439,19 @@ proc _tool_autoComp_getNextExtraWord {} {
     } else {
         lappend ::auto_comp_list $word
     }
+}
+
+proc _tool_indexLineContentHead {cucumber {position insert}} {
+    set j [$cucumber search -regexp {\S} "$position linestart" "$position lineend"]
+    return $j
+}
+
+proc _tool_indexContextMargin {cucumber id_l id_r l r} {
+    set id_l [$cucumber search -backward -nolinestop -regexp "\\$l" $id_l 1.0]
+    set id_r [$cucumber search -backward -nolinestop -regexp "\\$r" $id_r 1.0]
+
+    if {$id_l eq {}}  {return 1.0}
+    if {$id_r eq {}}  {return $id_l}
+    if {[$cucumber compare $id_l < $id_r]} {return [_tool_indexContextMargin $id_l $id_r $l $r]}
+    return $id_l
 }

@@ -191,13 +191,14 @@ proc init_region_readonly {} {
 }
 
 proc _verify_con_buffer {} {
-    set cmd [split $::com_buffer]
+    set cmd [split $::com_buffer {;}]
     set i 0
     foreach c $cmd {
         regsub {([a-z]+)([0-9]+)} $c {\1 \2} c
         regsub {^w(.+)} $c {w {\1}} c
         regsub {^s(.+)} $c {s \1} c
-        regsub -all {\\s} $c { } c
+        regsub {^cl\s+(.+)\s+([0-9]*)} $c {s \1;cl \2} c
+        regsub {^al\s+(.+)\s+([0-9]*)} $c {s \1;al \2} c
         lset cmd $i $c
         incr i
     }
