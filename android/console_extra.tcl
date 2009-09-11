@@ -191,7 +191,17 @@ proc init_region_readonly {} {
 }
 
 proc _verify_con_buffer {} {
-    return [expr ![catch {set ::com_result [interp eval con $::com_buffer]} ::com_err]]
+    set cmd [split $::com_buffer]
+    set i 0
+    foreach c $cmd {
+        regsub {([a-z]+)([0-9]+)} $c {\1 \2} c
+        regsub {^w(.*)} $c {w \1} c
+        regsub {^s(.+)} $c {s \1} c
+        lset cmd $i $c
+        incr i
+    }
+    set cmd [join $cmd {;}]
+    return [expr ![catch {set ::com_result [interp eval con $cmd]} ::com_err]]
 }
 
 proc _prev_history {t} {
