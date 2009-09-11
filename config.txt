@@ -43,4 +43,4 @@ initExtraFiles
 
 # something
 .f.content edit modified 0
-set current_file {D:/S/tcl/edcucumber/base/menu.tcl}
+set current_file {C:\Documents and Settings\Administrator\×ÀÃæ\cucumber-release-1.1.1-source\base\console_extra.tcl}
