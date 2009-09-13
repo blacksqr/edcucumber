@@ -11,6 +11,15 @@ set auto_comp_pos   {}
 set auto_comp_list  {}
 set auto_comp_list_id 0
 
+set auto_targets  {.f.content .extra}
+set extra_pos     end
+set extra_targets {}
+
+set indent_width 4
+
+set search_word {}
+set regexp 0
+
 #----------------------------------------#
 
 proc _data_defaultEvents {cucumber line_number_column info_label} {
@@ -41,12 +50,17 @@ proc _data_moveEvents {} {
         {<Alt-m>       _hdl_move_toContentHead}
         {<Control-BackSapce> _hdl_move_backSpaceWord}
         {<Control-Delete>    _hdl_move_deleteWord}
+        {<Control-bracketleft>  _hdl_move_searchNextWord}
+        {<Control-bracketright> _hdl_move_searchPrevWord}
     }
 }
 
 proc _data_plusEvents {} {
     return {
-        {<Alt-/> _hdl_plus_autoComplete}
+        {<Alt-/>     _hdl_plus_autoComplete}
+        {<Tab>       _hdl_plus_autoIndent}
+        {<Return>    _hdl_plus_autoIndent}
+        {<Control-r> _hdl_plus_run}
     }
 }
 
@@ -55,7 +69,7 @@ proc _data_plusEvents {} {
 proc _bind_defaultEvents {cucumber line_number_column} {
     foreach {evt handles} [_data_defaultEvents] {
         foreach hdl $handles {
-            bind $cucumber $evt "+ after idle $hdl"
+            bind $cucumber $evt "+ $hdl"
         }
     }
     
@@ -74,7 +88,7 @@ proc _bind_moveEvents {cucumber} {
 
 proc _bind_plusEvents {cucumber} {
     foreach {evt hdl} [_data_plusEvents] {
-        bind $cucumber $evt "$hdl $cucumber"
+        bind $cucumber $evt "+ $hdl $cucumber"
     }
 }
 
@@ -198,8 +212,8 @@ proc _hdl_plus_autoComplete {cucumber} {
             || [$cucumber compare $::auto_comp_end != insert] \
             || ![regexp "^$::auto_comp_word" [$cucumber get $::auto_comp_start $::auto_comp_end]]) && [_tool_ifInWord $cucumber insert]} {
                 _tool_autoComp_init
-                set widget_index [lsearch $::search_targets $evt_widget]
-                set ::extra_targets [lreplace $::search_targets $widget_index $widget_index]
+                set widget_index [lsearch $::search_targets $cucumber]
+                set ::extra_targets [lreplace $::auto_targets $widget_index $widget_index]
                 set ::extra_pos end
             }
     # set ::extra_pos end
@@ -224,8 +238,61 @@ proc _hdl_plus_autoComplete {cucumber} {
     }
 }
 
-proc _hdl_autoIndent {cucumber} {
+proc _hdl_plus_autoIndent {cucumber} {
+    if {[_tool_linum $cucumber] > 1]} {
+        set indet_span [expr [_tool_indexLineContentHead $cucumber {insert -1 l}] - [_tool_linum {insert -1 l}]]
+        $cucumber replace {insert linestart} [_tool_indexLineContentHead $cucumber insert] [string repeat { } $indet_span]
+    }
+    return -code break
+}
+
+proc _hdl_move_searchNextWord {cucumber} {
+    if $::regexp { set mod {-regexp} } else { set mod {-exact} }
+    set sw [string trim $::search_word]
+    if {$sw nw {}} {
+        set old [$cucumber index insert]
+        set now [$cucumber search $mod $sw insert]
+        if {$now eq {}} {
+            focus $cucumber
+            return
+        }
+        $cucumber mark set insert $now
+        if [$cucumber compare $old == insert] {
+            $cucumber mark ser insert [$cucumber search $mod $sw "insert +1 c"]
+        }
+    }
+    focus $cucumber
+    $cucumber see insert
+}
+
+proc _hdl_move_searchPrevWord {cucumber} {
+    if $::regexp { set mod {-regexp} } else { set mod {-exact} }
     
+    set sw [string trim $::search_word]
+    if {$sw ne {}} {
+        set now [$cucumber search -backward $mod $sw insert]
+        if {$now eq {}} {
+            focus $cucumber
+            return
+        }
+        $cucumber mark set insert $now
+    }
+    focus $cucumber
+    $cucumber see insert
+}
+
+proc _hdl_plus_run {cucumber} {
+    catch {interp delete foo}
+    interp create foo
+    interp eval foo {
+        rename puts _puts
+        proc puts {args} {
+            _puts $args
+            return $args
+        }
+    }
+    set err [interp eval foo [$cucumber get 1.0 end]]
+    .sf.lb configure -text "result: $err"
 }
 
 #----------------------------------------#
@@ -247,7 +314,7 @@ proc _tool_linum {cucumber id} {
     return [expr int($cucumber index $id)]
 }
 
-proc _tool_incrLinum {line_number_column} {
+proc _incrLinum {line_number_column} {
     set text_end_num [_tool_linum {end -1c}]
     set linum_diff [expr $text_end_num - $::linum]
     
@@ -266,7 +333,11 @@ proc _tool_incrLinum {line_number_column} {
     }
 }
 
-proc _tool_decrLinum {line_number_column} {
+proc _tool_incrLinum {line_number_column} {
+    after idle [list _incrLinum $line_number_column]
+}
+
+proc _decrLinum {line_number_column} {
     set text_end_num [_tool_linum {end -1c}]
     
     if {$text_end_num < $::linum} {
@@ -281,6 +352,10 @@ proc _tool_decrLinum {line_number_column} {
         }
         $line_number_column configure -width $line_number_width
     }
+}
+
+proc _tool_decrLinum {line_number_width} {
+    after idle [list _decrLinum $list]
 }
 
 proc _tool_ifInWord {cucumber id} {
@@ -454,4 +529,8 @@ proc _tool_indexContextMargin {cucumber id_l id_r l r} {
     if {$id_r eq {}}  {return $id_l}
     if {[$cucumber compare $id_l < $id_r]} {return [_tool_indexContextMargin $id_l $id_r $l $r]}
     return $id_l
+}
+
+proc _tool_evtGenerator {cucumber event} {
+    event generate $cucumber $event
 }
