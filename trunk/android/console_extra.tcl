@@ -194,11 +194,13 @@ proc _verify_con_buffer {} {
     set cmd [split $::com_buffer {;}]
     set i 0
     foreach c $cmd {
+        if [regexp {^(cl|al)\s} $c] {
+            switch [llength $c] {
+                2 {set c "s [lindex $c 1]; cl"}
+                3 {set c "s [lindex $c 1]; cl [lindex $c 2]"}
+            }
+        }
         regsub {([a-z]+)([0-9]+)} $c {\1 \2} c
-        regsub {^w(.+)} $c {w {\1}} c
-        regsub {^s(.+)} $c {s \1} c
-        regsub {^cl\s+(.+)\s+([0-9]*)} $c {s \1;cl \2} c
-        regsub {^al\s+(.+)\s+([0-9]*)} $c {s \1;al \2} c
         lset cmd $i $c
         incr i
     }
