@@ -43,4 +43,4 @@ initExtraFiles
 
 # something
 .f.content edit modified 0
-set current_file {C:/Documents and Settings/Administrator/×ÀÃæ/cucumber-release-1.1.1-source/base/api.tcl}
+set current_file {D:\s\tcl\test\tkinner.tcl}
