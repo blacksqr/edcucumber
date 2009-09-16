@@ -20,6 +20,8 @@ set indent_width 4
 set search_word {}
 set regexp 0
 
+set png_arrow [pngObj::produce go.png]
+
 #----------------------------------------#
 
 proc _data_defaultEvents {cucumber line_number_column info_label} {
@@ -533,4 +535,23 @@ proc _tool_indexContextMargin {cucumber id_l id_r l r} {
 
 proc _tool_evtGenerator {cucumber event} {
     event generate $cucumber $event
+}
+
+proc _tool_pngToNum {line_number_column line} {
+    $line_number_column configure -state normal
+    $line_number_column delete "$line.0" "$line.0 lineend"
+    $line_number_column insert "$line.0" $line justright
+    $line_number_column configure -state disable
+}
+
+proc _tool_numToPng {line_number_column line} {
+    $line_number_column configure -state normal
+    $line_number_column delete "$line.0" "$line.0 lineend"
+    $line_number_column image create "$line.0 lineend" -image $::png_arrow
+    set d [expr [string length $::linum] - $::linum_png_width]
+    while {$d > 0} {
+        $linum_png_width insert "$line.0" { }
+        incr d -1
+    }
+    $line_number_column configure -state disable
 }

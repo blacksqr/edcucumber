@@ -151,6 +151,10 @@ proc _tool_core_hiCommentContext {fake from to} {
     }
 }
 
-proc _tool_core_hiLine {$fake} {
-    
+proc _tool_core_hiLine {fake} {
+    $fake tag remove Lin 1.0 end
+    $fake tag add Lin {insert linestart} {insert +1l linestart}
+    _tool_pngToNum $fake [_tool_linum Arr]
+    _tool_numToPng $fake [_tool_linum insert]
+    $fake mark set Arr [$fake index insert]
 }
