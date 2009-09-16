@@ -151,10 +151,10 @@ proc _tool_core_hiCommentContext {fake from to} {
     }
 }
 
-proc _tool_core_hiLine {fake} {
+proc _tool_core_hiLine {fake line_number_column} {
     $fake tag remove Lin 1.0 end
     $fake tag add Lin {insert linestart} {insert +1l linestart}
-    _tool_pngToNum $fake [_tool_linum Arr]
-    _tool_numToPng $fake [_tool_linum insert]
+    catch {_tool_pngToNum $line_number_column [_tool_linum $fake Arr]}
+    _tool_numToPng $line_number_column [_tool_linum $fake insert]
     $fake mark set Arr [$fake index insert]
 }
