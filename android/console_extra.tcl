@@ -46,9 +46,10 @@ proc _main {} {
         con eval {
             rename puts _puts
             proc puts {args} {
-                return $args
+                putsstdout $args
             }
         }
+        interp alias con putsstdout {} putsstdout
         
         foreach item {
             {c@ <Control-@>}
@@ -82,6 +83,7 @@ proc _main {} {
             {k <Down>}
             {l <Right>}
             {q <Tab>}
+            {r <Control-r>}
         } {
             set name [lindex $item 0]
             eval [modGenerator $name "while {\$n > 0} {[evtGenerator [lindex $item 1]]; incr n -1}" 1]
@@ -105,7 +107,7 @@ proc _main {} {
         bind .ex_con.text <Control-j> j
         bind .ex_con.text <Control-k> k
         bind .ex_con.text <Control-l> l
-        bind .ex_con.text <`> {event generate .ex_con.text <Return>; break}
+        bind .ex_con.text <`> {event generate .ex_con.text <Return>; break}        
     }
     _init_con
 
@@ -147,6 +149,7 @@ proc _con_return {t} {
             $t insert end "$::head"
             $t tag add head_tag {insert linestart} {insert lineend}
         } else { 
+            if {$::com_buffer == {rr}} { set ::com_buffer [.f.content get 1.0 end] }
 	    if [_verify_con_buffer] {
 		if {$::com_result ne {}} {
 		    $t insert end $::com_result
@@ -194,13 +197,11 @@ proc _verify_con_buffer {} {
     set cmd [split $::com_buffer {;}]
     set i 0
     foreach c $cmd {
-        if [regexp {^(cl|al)\s} $c] {
-            switch [llength $c] {
-                2 {set c "s [lindex $c 1]; cl"}
-                3 {set c "s [lindex $c 1]; cl [lindex $c 2]"}
-            }
-        }
         regsub {([a-z]+)([0-9]+)} $c {\1 \2} c
+        regsub {^w(.+)} $c {w {\1}} c
+        regsub {^s(.+)} $c {s \1} c
+        regsub {^cl\s+(.+)\s+([0-9]*)} $c {s \1;cl \2} c
+        regsub {^al\s+(.+)\s+([0-9]*)} $c {s \1;al \2} c
         lset cmd $i $c
         incr i
     }
@@ -232,6 +233,11 @@ proc _prev_history {t} {
     $t insert "end -1c" $prev_com
 
     return -code break
+}
+
+proc putsstdout {msg} {
+    .ex_con.text insert end "$msg\n"
+    .ex_con.text see end
 }
 
 #-------------------------------#
