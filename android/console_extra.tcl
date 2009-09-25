@@ -148,8 +148,23 @@ proc _con_return {t} {
             $t insert end "#-------new-------#\n"
             $t insert end "$::head"
             $t tag add head_tag {insert linestart} {insert lineend}
+        } elseif {$::com_buffer == {rr}} { 
+            set ::com_buffer [.f.content get 1.0 end] 
+            if [expr ![catch {set ::com_result [interp eval con $::com_buffer]} ::com_err]] {
+                if {$::com_result ne {}} {
+		    $t insert end $::com_result
+		    $t insert end "\n"
+		}
+		$t insert end $::head
+		$t tag add head_tag {insert linestart} {insert lineend}
+                lappend ::com_history $::com_buffer
+            } else {
+                if [string first $::com_contin $::com_err] {
+		    $t insert end "${::com_err}\n${::head}"
+		    $t tag add head_tag {insert linestart} {insert lineend}
+		}
+            }
         } else { 
-            if {$::com_buffer == {rr}} { set ::com_buffer [.f.content get 1.0 end] }
 	    if [_verify_con_buffer] {
 		if {$::com_result ne {}} {
 		    $t insert end $::com_result
