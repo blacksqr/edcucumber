@@ -87,6 +87,7 @@ proc _newDoc {} {
     }
     
     .f configure -text {new file}
+    wm title . {new file}
     .f.content delete 1.0 end
     set ::current_file {}
     
@@ -118,6 +119,7 @@ proc _openDoc {} {
 	return
     }
     .f configure -text $filename
+    wm title . [file tail $filename]
     set ::current_file $filename
 
     set fid [open $filename r]
@@ -149,6 +151,7 @@ proc saveDoc {} {
         }
 	set ::current_file $filename
         .f configure -text $filename
+	wm title . [file tail $filename]
     } else {
 	set filename $::current_file
     }
@@ -183,6 +186,7 @@ proc saveAsDoc {} {
     if {$::current_file eq {}} {
         set ::current_file $filename
         .f configure -text $filename
+	wm title . [file tail $filename]
     }
 }
 
