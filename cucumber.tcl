@@ -298,8 +298,11 @@ if 1 {
         .f.content edit modified 0
         set ::old_anchor 1
 	.f.content mark set insert 1.0
+        
+        wm title . [file tail $::current_file]
     }] {
         .f configure -text {new file}
+        wm title . {new file}
         set current_file {}
     }
 }
